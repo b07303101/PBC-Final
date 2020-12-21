@@ -31,7 +31,7 @@ class Calendar:
         s.__config_calendar()    # 調整日曆列和安裝標記
         # 配置畫布和正確的绑定，以選擇日期。
         s.__setup_selection(sel_bg, sel_fg)
-        # 存儲项ID，用於稍後插入。
+        # 存儲項ID，用於稍後插入。
         s._items = [s._calendar.insert('', 'end', values='') for _ in range(6)]
 
         # 在當前空日曆中插入日期
@@ -215,17 +215,17 @@ class Calendar:
 
     def _main_judge(s):
         try:
-            #s.master 为 TK 窗口
+            #s.master 為 TK 窗口
             #if not s.master.focus_displayof(): s._exit()
             #else: s.master.after(10, s._main_judge)
 
-            #s.master 为 toplevel 窗口
+            #s.master 為 toplevel 窗口
             if s.master.focus_displayof() == None or 'toplevel' not in str(s.master.focus_displayof()): s._exit()
             else: s.master.after(10, s._main_judge)
         except:
             s.master.after(10, s._main_judge)
 
-        #s.master.tk_focusFollowsMouse() # 焦点跟随鼠标
+        #s.master.tk_focusFollowsMouse() # 焦點跟随游標
     def selection(s):
         if not s._selection: 
             return None
