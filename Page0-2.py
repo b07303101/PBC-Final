@@ -46,8 +46,7 @@ class PageA:
     def createPage_A(self):
         f1 = tkFont.Font(size = 30, family = "源泉圓體 B")
         f2 = tkFont.Font(size = 20, family = "源泉圓體 M")
-        # color_1 = 'Steelblue'
-        # color_2 = 'Dimgray'
+
         self.lblTitle_A = tk.Label(self.pageA, text = " 會議", height = 1 , width = 15, font = f1, bg = 'DarkSlateGray', fg = 'white', anchor = 'w')
         self.btnCreate_New = tk.Button(self.pageA, text = "創建新會議", height = 1, width = 10, font = f2, bg = 'Snow', fg = 'black', command = self.click_btnCreate_New)
         
@@ -87,18 +86,9 @@ class PageA:
     def add_meetings(self):
         f1 = tkFont.Font(size = 30, family = "源泉圓體 B")
         f2 = tkFont.Font(size = 15, family = "源泉圓體 M")
-        # if self.count_meetings == 0:
-            # self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1).place(x = 50, y = 150)
-        # elif self.count_meetings == 1:
-            # self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1).place(x = 375, y = 150)
-        # elif self.count_meetings == 2:
-            # self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1).place(x = 700, y = 150)
-        # elif self.count_meetings == 3:
+        
         self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1)
         self.newMeeting.place(x = 50 + 325*int(self.count_meetings%3), y = 150 + 150*int(self.count_meetings/3))
-    # def add_meetings(self):
-        # f1 = tkFont.Font(size = 30, family = "源泉圓體 B")
-        # f2 = tkFont.Font(size = 15, family = "源泉圓體 M")
         
         # data = openpyxl.load_workbook('紀錄會議日期時間.xlsx')
         # # sheet = data['工作表1']
