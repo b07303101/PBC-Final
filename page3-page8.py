@@ -3,11 +3,7 @@ import tkinter.font as tkfont
 import tkinter.messagebox as tkmessage
 import openpyxl
 
-wb_record = openpyxl.load_workbook('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
-sheet_time = wb_record['時間統計']
-wb_color = openpyxl.load_workbook('C:/Users/黃萱/Desktop/商管程/期末專案/色表.xlsx')
-sheet_color = wb_color['色票']
-
+wb = openpyxl.load_workbook('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
 absence = []
 mission = []
 
@@ -21,8 +17,8 @@ class Page3:
         self.page3.master.title("Page3")
         self.page3.grid()
 
-        f1 = tkfont.Font(size=12, family="Microsoft JhengHei UI")
-        f2 = tkfont.Font(size=18, family="Microsoft JhengHei UI")
+        f1 = tkfont.Font(size=12, family="Yu Gothic Medium")
+        f2 = tkfont.Font(size=18, family="Yu Gothic Medium")
 
         self.btn_createtime = tk.Button(self.page3, text="新增你的時間", height=1, width=18, font=f2, command=self.click_btn_createtime)
         self.btn_times = tk.Button(self.page3, text="查看所有人的時間", height=1, width=18, font=f2, command=self.click_btn_times)
@@ -57,8 +53,8 @@ class Page4:
         self.page4.master.title("Page4")
         self.page4.grid()
 
-        f1 = tkfont.Font(size=12, family="Microsoft JhengHei UI")
-        f2 = tkfont.Font(size=16, family="Microsoft JhengHei UI")
+        f1 = tkfont.Font(size=12, family="Yu Gothic Medium")
+        f2 = tkfont.Font(size=16, family="Yu Gothic Medium")
 
         global var_name, var_selectall
 
@@ -101,19 +97,22 @@ class Page4:
         if var_name.get() == "":
             tkmessage.showerror(title="請輸入姓名", message="請輸入姓名！")
         else:
-            member = str(sheet_time.cell(row=2, column=10).value)
+            global wb
+            sheet = wb['時間統計']
+
+            member = str(sheet.cell(row=2, column=10).value)
             if member == 'None':
                 list_member = [var_name.get()]
                 for i in range(7):
                     for j in range(16):
                         if chk_btns[i][j].get() == 1:
-                            available = str(sheet_time.cell(row=j + 2, column=i + 2).value)
+                            available = str(sheet.cell(row=j + 2, column=i + 2).value)
                             if available == 'None':
                                 list_available = [var_name.get()]
                             else:
                                 list_available = available.split(',')
                                 list_available.append(var_name.get())
-                            sheet_time.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
+                            sheet.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
             else:
                 list_member = member.split(',')
                 if var_name.get() not in list_member:
@@ -121,17 +120,17 @@ class Page4:
                     for i in range(7):
                         for j in range(16):
                             if chk_btns[i][j].get() == 1:
-                                available = str(sheet_time.cell(row=j + 2, column=i + 2).value)
+                                available = str(sheet.cell(row=j + 2, column=i + 2).value)
                                 if available == 'None':
                                     list_available = [var_name.get()]
                                 else:
                                     list_available = available.split(',')
                                     list_available.append(var_name.get())
-                                sheet_time.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
+                                sheet.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
                 else:
                     for i in range(7):
                         for j in range(16):
-                            available = str(sheet_time.cell(row=j + 2, column=i + 2).value)
+                            available = str(sheet.cell(row=j + 2, column=i + 2).value)
                             if chk_btns[i][j].get() == 1:
                                 if available == 'None':
                                     list_available = [var_name.get()]
@@ -139,14 +138,14 @@ class Page4:
                                     list_available = available.split(',')
                                     if var_name.get() not in available:
                                         list_available.append(var_name.get())
-                                sheet_time.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
+                                sheet.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
                             else:
                                 if var_name.get() in available:
                                     available = available.replace(var_name.get(), "").replace(",,", ",").strip(",")
-                                    sheet_time.cell(row=j + 2, column=i + 2).value = available
+                                    sheet.cell(row=j + 2, column=i + 2).value = available
 
-            sheet_time.cell(row=2, column=10).value = ",".join(list_member)
-            wb_record.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
+            sheet.cell(row=2, column=10).value = ",".join(list_member)
+            wb.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
 
             self.page4.destroy()
             Page5()
@@ -173,67 +172,52 @@ class Page5:
         self.page5.master.title("Page5")
         self.page5.grid()
 
-        f1 = tkfont.Font(size=12, family="Microsoft JhengHei UI")
-        f2 = tkfont.Font(size=10, family="Microsoft JhengHei UI")
+        f1 = tkfont.Font(size=12, family="Yu Gothic Medium")
 
         self.btn_yes = tk.Button(self.page5, text='確定', height=1, font=f1, command=self.click_btn_yes)
         self.lab_allmembers = tk.Label(self.page5, text='all members', font=f1)
         self.lab_available = tk.Label(self.page5, text='available', font=f1)
         self.lab_unavailable = tk.Label(self.page5, text='unavailable', font=f1)
-
         self.btn_yes.place(x=475, y=620)
         self.lab_allmembers.place(x=100, y=74)
         self.lab_available.place(x=319, y=256)
         self.lab_unavailable.place(x=103, y=256)
 
-        self.scroll_available = tk.Scrollbar(self.page5)
-        self.scroll_unavailable = tk.Scrollbar(self.page5)
-        self.scroll_allmembers = tk.Scrollbar(self.page5)
-        self.scroll_color = tk.Scrollbar(self.page5)
-
-        self.scroll_available.place(x=413, y=282, relheight=0.425)
-        self.scroll_unavailable.place(x=208, y=282, relheight=0.425)
-        self.scroll_allmembers.place(x=208, y=100, relheight=0.184)
-        self.scroll_color.place(x=413, y=100, relheight=0.184)
-
         var_available = tk.StringVar()
-        self.lst_available = tk.Listbox(self.page5, listvariable=var_available, font=f1, width=14, height=14, yscrollcommand=self.scroll_available.set)
+        self.lst_available = tk.Listbox(self.page5, listvariable=var_available, font=f1, width=15, height=14)
         self.lst_available.place(x=285, y=282)
 
         var_unavailable = tk.StringVar()
-        self.lst_unavailable = tk.Listbox(self.page5, listvariable=var_unavailable, font=f1, width=14, height=14, yscrollcommand=self.scroll_unavailable.set)
+        self.lst_unavailable = tk.Listbox(self.page5, listvariable=var_unavailable, font=f1, width=15, height=14)
         self.lst_unavailable.place(x=80, y=282)
 
         var_allmembers = tk.StringVar()
-        self.lst_allmembers = tk.Listbox(self.page5, listvariable=var_allmembers, font=f1, width=14, height=6, yscrollcommand=self.scroll_allmembers.set)
+        self.lst_allmembers = tk.Listbox(self.page5, listvariable=var_allmembers, font=f1, width=15, height=6)
         self.lst_allmembers.place(x=80, y=100)
 
-        all_members = str(sheet_time.cell(row=2, column=10).value).split(',')
-        how_many_people = len(all_members)
-
+        global wb
+        sheet = wb['時間統計']
+        all_members = str(sheet.cell(row=2, column=10).value).split(',')
         for member in all_members:
             self.lst_allmembers.insert("end", member)
 
-        self.btn_try = tk.Button(self.page5, text='try', font=f2, width=6, command=self.click_btn_try)
-        self.btn_try.place(x=320, y=68)
-
-        self.lst_color = tk.Listbox(self.page5, width=14, height=6, font=f1, selectmode=tk.MULTIPLE, yscrollcommand=self.scroll_color.set)
+        self.lst_color = tk.Listbox(self.page5, width=15, height=6, font=f1)
         self.lst_color.place(x=285, y=100)
-        self.color = str()
 
-        global color_list, people_list
-        color_list = []
-        people_list = []
+        color = ["blue", "red", "green"]
 
-        for i in range(how_many_people):
-            self.lst_color.insert('end', i + 1)
-            self.color = sheet_color['A' + str(int(30 / int(how_many_people)) * i + 1)].value
-            color_list.append(self.color)
-            self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)
+        for i in range(3):
+            self.lst_color.insert("end", i)
+            self.lst_color.itemconfig("end", bg=color[i])
 
-        for i in range(7):
-            people_list.append([])
+        global btn_list
+        btn_list = []
+        num = []
+
         for i in range(8):
+            if i != 0:
+                btn_list.append([])
+                num.append([])
             for j in range(17):
                 if i == 0:
                     if j == 0:
@@ -243,64 +227,9 @@ class Page5:
                 else:
                     tk.Label(self.page5, relief='solid', borderwidth=1, width=7, height=2).place(x=501 + 52 * i, y=80 + 30 * j)
                     if j != 0:
-                        how_many_available = len(str(sheet_time.cell(row=j + 1, column=i + 1).value).split(','))
-                        if str(sheet_time.cell(row=j + 1, column=i + 1).value) == 'None':
-                            how_many_available = 0
-                        if how_many_available != 0:
-                            self.color = sheet_color['A' + str(1)].value
-                            self.btn = tk.Button(self.page5, bg=str(color_list[how_many_available - 1]), width=6, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
-                            self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
-                            people_list[i - 1].append(how_many_available)
-                        else:
-                            self.btn = tk.Button(self.page5, bg='white', width=6, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
-                            self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
-                            people_list[i - 1].append(how_many_available)
-
-        self.scroll_available.config(command=self.lst_available.yview)
-        self.scroll_unavailable.config(command=self.lst_unavailable.yview)
-        self.scroll_allmembers.config(command=self.lst_allmembers.yview)
-        self.scroll_color.config(command=self.lst_color.yview)
-
-    def click_btn_try(self):
-        number_choose = list()
-        number_choose_tuple = self.lst_color.curselection()
-        for i in number_choose_tuple:
-            number_choose.append(self.lst_color.get(i))
-
-        if len(number_choose) == 0:
-            for i in range(1, 8):
-                for j in range(1, 17):
-                    how_many_available = len(str(sheet_time.cell(row=j + 1, column=i + 1).value).split(','))
-                    if str(sheet_time.cell(row=j + 1, column=i + 1).value) == 'None':
-                        how_many_available = 0
-                    if how_many_available != 0:
-                        self.color = sheet_color['A' + str(1)].value
-                        self.btn = tk.Button(self.page5, bg=str(color_list[how_many_available - 1]), width=6, height=1,
-                                             command=lambda a=i, b=j: self.click_btn(a, b))
+                        self.btn = tk.Button(self.page5, background="#AAFFEE", width=6, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
                         self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
-                        people_list[i - 1].append(how_many_available)
-                    else:
-                        self.btn = tk.Button(self.page5, bg='white', width=6, height=1,
-                                             command=lambda a=i, b=j: self.click_btn(a, b))
-                        self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
-                        people_list[i - 1].append(how_many_available)
-
-        for i in range(1, 8):
-            for j in range(1, 17):
-                for k in range(len(number_choose)):
-                    if k == 0:
-                        if int(people_list[i - 1][j - 1]) == number_choose[k]:
-                            self.color = sheet_color['A' + str(1)].value
-                            self.btn = tk.Button(self.page5, bg=str(color_list[int(number_choose[k]) - 1]), width=6, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
-                            self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
-                        else:
-                            self.btn = tk.Button(self.page5, bg='white', width=6, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
-                            self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
-                    else:
-                        if int(people_list[i - 1][j - 1]) == number_choose[k]:
-                            self.color = sheet_color['A' + str(1)].value
-                            self.btn = tk.Button(self.page5, bg=str(color_list[int(number_choose[k]) - 1]), width=6, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
-                            self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
+                        btn_list[i - 1].append(self.btn)
 
     def click_btn_yes(self):
         self.page5.destroy()
@@ -310,8 +239,10 @@ class Page5:
         self.lst_available.delete(0, "end")
         self.lst_unavailable.delete(0, "end")
 
-        all_members = str(sheet_time.cell(row=2, column=10).value).split(',')
-        available_member = str(sheet_time.cell(row=b + 1, column=a + 1).value).split(',')
+        global wb
+        sheet = wb['時間統計']
+        all_members = str(sheet.cell(row=2, column=10).value).split(',')
+        available_member = str(sheet.cell(row=b + 1, column=a + 1).value).split(',')
 
         for member in available_member:
             self.lst_available.insert("end", member)
@@ -328,8 +259,8 @@ class Page6:
         self.page6.master.title("Page6")
         self.page6.grid()
 
-        f1 = tkfont.Font(size=12, family="Microsoft JhengHei UI")
-        f2 = tkfont.Font(size=16, family="Microsoft JhengHei UI")
+        f1 = tkfont.Font(size=12, family="Yu Gothic Medium")
+        f2 = tkfont.Font(size=16, family="Yu Gothic Medium")
 
         self.btn6_1 = tk.Button(self.page6, text="出缺勤", height=1, width=18, font=f2, command=self.click_btn6_1)
         self.btn6_2 = tk.Button(self.page6, text="會議記錄", height=1, width=18, font=f2, command=self.click_btn6_2)
@@ -364,21 +295,23 @@ class Page7:
         self.page7.master.title("Page8")
         self.page7.grid()
 
-        f1 = tkfont.Font(size=12, family="Microsoft JhengHei UI")
+        f1 = tkfont.Font(size=12, family="Yu Gothic Medium")
 
         self.btn7_1 = tk.Button(self.page7, text="確定", font=f1, command=self.click_btn7_1)
         self.btn7_1.place(x=475, y=620)
 
+        global wb
+        times = wb['時間統計']
         try:
-            sheet = wb_record['出缺勤']
+            new_sheet = wb['出缺勤']
         except KeyError:
-            sheet = wb_record.create_sheet('出缺勤')
+            new_sheet = wb.create_sheet('出缺勤')
 
         global absence, mission, member_list
 
-        member_list = str(sheet_time.cell(row=2, column=10).value).split(',')
+        member_list = str(times.cell(row=2, column=10).value).split(',')
         for i in range(len(member_list)):
-            sheet.cell(row=i + 1, column=1).value = member_list[i]
+            new_sheet.cell(row=i + 1, column=1).value = member_list[i]
             tk.Label(self.page7, text=member_list[i], font=f1).place(x=100, y=50 + 35 * i)
             tk.Label(self.page7, text='是否完成指派任務？', font=f1).place(x=500, y=50 + 35 * i)
 
@@ -400,10 +333,11 @@ class Page7:
             tk.Radiobutton(self.page7, variable=var_mission, text="否", value=2, font=f1).place(x=745, y=50 + 35 * i)
             tk.Radiobutton(self.page7, variable=var_mission, text="無任務", value=3, font=f1).place(x=815, y=50 + 35 * i)
 
-        wb_record.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
+        wb.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
 
     def click_btn7_1(self):
-        sheet = wb_record['出缺勤']
+        global wb
+        sheet = wb['出缺勤']
 
         for i in range(len(member_list)):
             if absence[i].get() == 1:
@@ -419,7 +353,7 @@ class Page7:
             if mission[i].get() == 3:
                 sheet.cell(row=i + 1, column=3).value = "無任務"
 
-        wb_record.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
+        wb.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
 
         self.page7.destroy()
         Page6()
@@ -432,8 +366,8 @@ class Page8:
         self.page8.master.title("Page8")
         self.page8.grid()
 
-        f1 = tkfont.Font(size=12, family="Microsoft JhengHei UI")
-        f2 = tkfont.Font(size=16, family="Microsoft JhengHei UI")
+        f1 = tkfont.Font(size=12, family="Yu Gothic Medium")
+        f2 = tkfont.Font(size=16, family="Yu Gothic Medium")
 
         self.record = tk.Text(self.page8, height=23, width=90, font=f1)
         self.lbl8_1 = tk.Label(self.page8, text="會議記錄", font=f2)
@@ -444,14 +378,13 @@ class Page8:
         var_times = tk.StringVar()
         self.entry8 = tk.Entry(self.page8, textvariable=var_times, width=18, font=f1)
 
-        global meeting_record
+        global wb, ws
         try:
-            meeting_record = wb_record['Meeting record']
+            ws = wb['Meeting record']
         except KeyError:
-            meeting_record = wb_record.create_sheet('Meeting record')
-
-        if str(meeting_record.cell(row=1, column=1).value) != 'None':
-            self.record.insert("1.0", str(meeting_record.cell(row=1, column=1).value))
+            ws = wb.create_sheet('Meeting record')
+        if str(ws.cell(row=1, column=1).value) != 'None':
+            self.record.insert("1.0", str(ws.cell(row=1, column=1).value))
 
         self.lbl8_1.place(x=450, y=40)
         self.record.place(x=95, y=115)
@@ -460,9 +393,9 @@ class Page8:
         self.lbl8_2.place(x=655, y=80)
 
     def click_btn8(self):
-        meeting_record.cell(row=1, column=1).value = self.record.get("1.0", "end")
-        meeting_record.cell(row=1, column=2).value = var_times.get()
-        wb_record.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
+        ws.cell(row=1, column=1).value = self.record.get("1.0", "end")
+        ws.cell(row=1, column=2).value = var_times.get()
+        wb.save('C:/Users/黃萱/Desktop/商管程/期末專案/紀錄資料.xlsx')
         self.page8.destroy()
         Page6()
 
