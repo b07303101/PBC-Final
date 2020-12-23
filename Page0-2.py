@@ -73,12 +73,9 @@ class PageA:
         
         meeting_name = tk.StringVar()
         self.inputname = tk.Entry(self.window, textvariable = meeting_name, width = 30, font = f2, )
-        # self.lbltime = tk.Label(self.pageB, text = "會議日期：", height = 1, width = 50, font = f2)
         self.btnYes = tk.Button(self.window, text = "確認", height = 1, width = 10, font = f2, command = self.click_btnYes)
         
-        # self.lblTitle_B.place(x = 0, y = 50)
         self.lblname.place(x = 60, y = 75)
-        # self.lbltime.place(x = 120, y = 220)
         self.inputname.place(x = 175, y = 75)
         self.btnYes.place(relx = 0.5, y = 350, anchor = 'center')
         datetime = calendar.datetime.datetime #日期和時間結合
@@ -353,14 +350,14 @@ class PageA:
         f1 = tkFont.Font(size = 30, family = "源泉圓體 B")
         f2 = tkFont.Font(size = 15, family = "源泉圓體 M")
         
-        self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1)
-        self.newMeeting.place(x = 50 + 325*int(self.count_meetings%3), y = 150 + 150*int(self.count_meetings/3))
+        # self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1)
+        # self.newMeeting.place(x = 50 + 325*int(self.count_meetings%3), y = 150 + 150*int(self.count_meetings/3))
         
         data = openpyxl.load_workbook('紀錄會議日期時間.xlsx')
         sheet = data.create_sheet(meeting_name.get(), 0)
         # 將工作表命名為會議名稱
-
-        sheet.cell(row = 1, column = 2).value = meeting_name.get()
+        self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1)
+        self.newMeeting.place(x = 50 + 325*int(self.count_meetings%3), y = 150 + 150*int(self.count_meetings/3))
         data.save('紀錄會議日期時間.xlsx')
 
 
