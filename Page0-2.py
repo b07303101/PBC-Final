@@ -90,12 +90,12 @@ class PageA:
         self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1)
         self.newMeeting.place(x = 50 + 325*int(self.count_meetings%3), y = 150 + 150*int(self.count_meetings/3))
         
-        # data = openpyxl.load_workbook('紀錄會議日期時間.xlsx')
-        # # sheet = data['工作表1']
-        # # sheet.title = meeting_name.get()  # 將工作表命名為會議名稱
-        # # sheet.cell(row = 1, column = 2).value = meeting_name.get()
-        # self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1).place(x = 50, y = 150)
-        # data.save('紀錄會議日期時間.xlsx')
+        data = openpyxl.load_workbook('紀錄會議日期時間.xlsx')
+        sheet = data.create_sheet(meeting_name.get(), 0)
+        # 將工作表命名為會議名稱
+        # sheet.cell(row = 1, column = 2).value = meeting_name.get()
+        self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), height = 2, width = 10, font = f1).place(x = 50, y = 150)
+        data.save('紀錄會議日期時間.xlsx')
 
 
 root.geometry("1000x700")
