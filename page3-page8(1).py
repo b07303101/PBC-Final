@@ -366,10 +366,12 @@ class Page6:
         Page8()
 
     def click_btn6_3(self):
-        global absence, mission
-        absence = []
-        mission = []
-        self.page6.destroy()
+        message = tkmessage.askokcancel(title="確定結束會議？", message="結束會議後，您將無法作任何更動")
+        if message == True:
+            global absence, mission
+            absence = []
+            mission = []
+            self.page6.destroy()
 
     def click_btn6_4(self):
         self.page6.destroy()
