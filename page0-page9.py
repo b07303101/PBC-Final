@@ -200,6 +200,7 @@ class PageA:
                 s._calendar = ttk.Treeview(gframe, show='', selectmode='none', height=7)
                 s._calendar.pack(expand=1, fill='both', side='bottom', padx=5)
                 ttk.Button(bframe, text = "加入", width = 6, command = lambda: s._exit(True)).grid(row = 0, column = 0, sticky = 'ns', padx = 20)  # 框架
+                ttk.Button(bframe, text = "取消", width = 6, command = s.cancel).grid(row = 0, column = 1, sticky = 'ne', padx = 20)
                 tk.Frame(s.G_Frame, bg = '#565656').place(x = 0, y = 0, relx = 0, rely = 0, relwidth = 1, relheigh = 2/200)
                 tk.Frame(s.G_Frame, bg = '#565656').place(x = 0, y = 0, relx = 0, rely = 198/200, relwidth = 1, relheigh = 2/200)
                 tk.Frame(s.G_Frame, bg = '#565656').place(x = 0, y = 0, relx = 0, rely = 0, relwidth = 2/200, relheigh = 1)
@@ -309,25 +310,32 @@ class PageA:
                         
            
             def _exit(s, confirm = False):
-                
+                name = ""
+                date = ""
+                if self.inputname != "":
+                    name = self.inputname.get()
                 global date_list
                 date_list = []
                 if not confirm:
                     s._selection = None
                 year = s._date.year
                 month = s._date.month
-                self.enydate.insert(1.0,(str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))+"\n"))
-                if len(date_list) == 0:
-                    date_list.append(self.enydate.get(1.0,"end"))
+                compare_list = []
+                if str(self.enydate.get(1.0,"end")) != "":
+                    compare_list = self.enydate.get(1.0,"end").split("\n")
+                    date = self.enydate.get(1.0,"end")
+                count = 0
+                for i in range(len(compare_list)):
+                    if (str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))) == compare_list[i]:
+                        count += 1
+                if count > 0:
+                    self.window.lower(belowThis=None)
+                    (tkmessage.showinfo(title="日期重複", message="此日期已選擇"))
+                    self.window.wm_attributes('-topmost',1)
+                    meeting_name.set(name)
+                    self.text.set(date)
                 else:
-                    change_date = date_list[0].replace(" ","").split("\n")
-                    for i in range(len(change_date)):
-                        if len(change_date[i]) == 10:
-                                if change_date[i][:11] == self.enydate.get(1.0,2.0):
-                                    tkmessage.showerror(title="日期重複", message="此日期已選擇")
-                                else:
-                                    date_list.append(self.enydate.get(1.0,"end"))
-                # print(date_list)
+                    self.enydate.insert("insert",(str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))+"\n"))
                         
                     
                 
@@ -350,6 +358,34 @@ class PageA:
                     return True
                 else:
                     return False
+                    
+            def cancel(s):
+                name = ""
+                date = ""
+                if self.inputname != "":
+                    name = self.inputname.get()
+                if str(self.enydate.get(1.0,"end")) != "":
+                    compare_list = self.enydate.get(1.0,"end").split("\n")
+                    date = self.enydate.get(1.0,"end")
+                year = s._date.year
+                month = s._date.month
+                compare_list = []
+                count = 0
+                if str(self.enydate.get(1.0,"end")) != "":
+                    compare_list = self.enydate.get(1.0,"end").split("\n")
+                for i in range(len(compare_list)):
+                    if str((str(year)+"/"+str(month)+"/"+str(int(s._selection[0])))) == compare_list[i] :
+                        count += 1
+                        if i == 0:
+                            self.enydate.delete("1."+"0","2"+".0")
+                        else:
+                            self.enydate.delete(str(int(i))+".11",str(int(i)+1)+".end")
+                if count == 0:
+                    self.window.lower(belowThis=None)
+                    (tkmessage.showinfo(title="查無此日期", message="查無此日期"))
+                    self.window.wm_attributes('-topmost',1)
+                    meeting_name.set(name)
+                    self.text.set(date)
             
             
 
@@ -357,34 +393,61 @@ class PageA:
         
         
     def click_btnYes(self):
-        data = openpyxl.load_workbook('NAME.xlsx')
-        sheet = data['工作表1']
-        self.window.destroy()
-        self.add_meetings()
-        self.count_meetings = int(sheet.max_column)
-        print(self.count_meetings)
-        self.count_meetings += 1
+        name = ""
+        date = ""
+        if self.inputname != "":
+            name = self.inputname.get()
+        if str(self.enydate.get(1.0,"end")) != "\n":
+            compare_list = self.enydate.get(1.0,"end").split("\n")
+            date = self.enydate.get(1.0,"end")
+            
+        if self.inputname.get() == "" or self.enydate.get(1.0,"end") == "\n":
+            if self.inputname.get() == "" and self.enydate.get(1.0,"end") != "\n":
+                self.window.lower(belowThis=None)
+                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議名稱"))
+                self.window.wm_attributes('-topmost',1)
+                meeting_name.set(name)
+                self.text.set(date)
+            elif self.enydate.get(1.0,"end") == "\n" and self.inputname.get() != "":
+                self.window.lower(belowThis=None)
+                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議日期"))
+                self.window.wm_attributes('-topmost',1)
+                meeting_name.set(name)
+                self.text.set(date)
+            elif self.enydate.get(1.0,"end") == "\n" and self.inputname.get() == "":
+                self.window.lower(belowThis=None)
+                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議名稱及日期"))
+                self.window.wm_attributes('-topmost',1)
+                meeting_name.set(name)
+                self.text.set(date)
+        else:
+            data = openpyxl.load_workbook('NAME.xlsx')
+            sheet = data['工作表1']
+            self.window.destroy()
+            self.add_meetings()
+            self.count_meetings = int(sheet.max_column)
+            self.count_meetings += 1
    
-        change_date = date_list[0].replace(" ","").split("\n")
-        wb = openpyxl.Workbook()
-        ws1 = wb.active
-        name = meeting_name.get()
-        ws1.title = name
+            
+            wb = openpyxl.Workbook()
+            ws1 = wb.active
+            name = meeting_name.get()
+            ws1.title = name
+            change_date = date_list[0].replace(" ","").split("\n")
+            for i in range(len(change_date)):
+                ws1.cell(row=1,column=i+2,value=change_date[i]).value
         
-        for i in range(len(change_date)):
-            ws1.cell(row=1,column=i+2,value=change_date[i]).value
+            filepath = 'C:/Users/User/Desktop/GitHub/PBC109-1/'+ str(name) +'.xlsx'
+            wb.save(filepath)
         
-        filepath = 'C:/Users/User/Desktop/GitHub/PBC109-1/'+ str(name) +'.xlsx'
-        wb.save(filepath)
+            global namelist
+            namelist.append(meeting_name.get())
         
-        global namelist
-        namelist.append(meeting_name.get())
-        
-        data = openpyxl.load_workbook('NAME.xlsx')
-        sheet = data['工作表1']
-        for i in range(len(namelist)):
-            sheet.cell(row = 1, column =i+2, value=namelist[i]).value
-        data.save('NAME.xlsx')
+            data = openpyxl.load_workbook('NAME.xlsx')
+            sheet = data['工作表1']
+            for i in range(len(namelist)):
+                sheet.cell(row = 1, column =i+2, value=namelist[i]).value
+            data.save('NAME.xlsx')
 
 
     def add_meetings(self):
