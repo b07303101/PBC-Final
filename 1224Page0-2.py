@@ -6,6 +6,7 @@ import openpyxl
 from PIL import ImageTk
 import calendar
 from tkinter import ttk
+import tkinter.messagebox as tkmessage
 
 root = tk.Tk()
 
@@ -72,27 +73,32 @@ class PageA:
         self.window.geometry('600x420')
         self.window.title('會議時間')
         self.text = tk.StringVar()
-        self.text.set("")
+        self.text.set("測試")
         self.window.configure(bg = self._from_rgb((208, 224, 227)))
         self.lblTitle_B = tk.Label(self.window, text = " 創建新會議", height = 1 , width = 15, font = f1, bg = self._from_rgb((68, 84, 106)), fg = 'white', anchor = 'w')
         self.lblname = tk.Label(self.window, text = "會議名稱：", bg = self._from_rgb((208, 224, 227)), height = 1, width = 10, font = f2)
-        self.lblname1 = tk.Label(self.window, text = "你已選擇：", font = f2)
+        self.lblchoose = tk.Label(self.window, text = "你已選擇：", bg = self._from_rgb((208, 224, 227)), height = 1, width = 10, font = f2)
+        
         
         global meeting_name
         
         meeting_name = tk.StringVar()
         self.inputname = tk.Entry(self.window, textvariable = meeting_name, width = 30, font = f2)
-        self.lbldate = tk.Label(self.window, textvariable = self.text, font = f2)
+        self.enydate = tk.Text(self.window,height = 7.4,width = 15,font = f2)
+        width = root.winfo_reqwidth() + 50
+        height = 100 #窗口大小
+        x, y = (root.winfo_screenwidth()  - width )/2, (root.winfo_screenheight() - height)/2
+       
         self.btnYes = tk.Button(self.window, text = "確認", height = 1, width = 5, bg = self._from_rgb((255, 217, 102)), font = f2, command = self.click_btnYes)
-        self.btndate = tk.Button(self.window, text = "新增日期", height = 1, width = 10, font = f2)
-
+       
+         
         self.lblTitle_B.place(x = 0, y = 25)
-        self.lblname.place(x = 60, y = 75)
-        self.lblname1.place(x = 60, y = 150)
-        self.lbldate.place(x = 60, y = 180)
-        self.inputname.place(x = 175, y = 75)
+        self.lblname.place(x = 70, y = 75)
+        self.lblchoose.place(x = 70, y = 105)
+        self.enydate.place(x = 80, y = 140)
+        self.inputname.place(x = 190, y = 75)
         self.btnYes.place(relx = 0.5, y = 380, anchor = 'center')
-        self.btndate.place(x = 200,y = 350,relx = 0.5, anchor = 'center')
+       
         datetime = calendar.datetime.datetime #日期和時間結合(從這邊複製)
         timedelta = calendar.datetime.timedelta  # 時間差
         
@@ -126,7 +132,7 @@ class PageA:
                 # 在當前空日曆中插入日期
                 s._update()
 
-                s.G_Frame.pack(expand = 10)  
+                s.G_Frame.place(x=290,y = 120)
                 self.window.update_idletasks()  # 刷新頁面
                
                 
@@ -153,7 +159,7 @@ class PageA:
                 hframe = ttk.Frame(s.G_Frame)
                 gframe = ttk.Frame(s.G_Frame)
                 bframe = ttk.Frame(s.G_Frame)
-                hframe.pack(in_=s.G_Frame, side='top', pady=5, anchor='center')  # 日曆的上視窗
+                hframe.pack(in_=s.G_Frame, side='top',  pady=5, anchor='center')  # 日曆的上視窗
                 gframe.pack(in_=s.G_Frame, fill=tk.X, pady=5)
                 bframe.pack(in_=s.G_Frame, side='bottom', pady=5)  
 
@@ -176,6 +182,7 @@ class PageA:
                 # 日曆部件
                 s._calendar = ttk.Treeview(gframe, show='', selectmode='none', height=7)
                 s._calendar.pack(expand=1, fill='both', side='bottom', padx=5)
+                ttk.Button(bframe, text = "加入", width = 6, command = lambda: s._exit(True)).grid(row = 0, column = 0, sticky = 'ns', padx = 20)  # 框架
                 tk.Frame(s.G_Frame, bg = '#565656').place(x = 0, y = 0, relx = 0, rely = 0, relwidth = 1, relheigh = 2/200)
                 tk.Frame(s.G_Frame, bg = '#565656').place(x = 0, y = 0, relx = 0, rely = 198/200, relwidth = 1, relheigh = 2/200)
                 tk.Frame(s.G_Frame, bg = '#565656').place(x = 0, y = 0, relx = 0, rely = 0, relwidth = 2/200, relheigh = 1)
@@ -282,16 +289,33 @@ class PageA:
                             item = 'I00' + str(_item + 2)
                             column = '#' + str(day_list.index(day)+1)
                             self.window.after(100, lambda :s._pressed(item = item, column = column, widget = s._calendar))
-
-
+                        
+           
+            def _exit(s, confirm = False,n = 0):
+                
+                global date_list
+                date_list = []
+                if not confirm:
+                    s._selection = None
+                year = s._date.year
+                month = s._date.month
+                self.enydate.insert(1.0,(str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))+"\n"))
+                if len(date_list) == 0:
+                    date_list.append(self.enydate.get(1.0,"end"))
+                else:
+                    change_date = date_list[0].replace(" ","").split("\n")
+                    for i in range(len(change_date)):
+                        if len(change_date[i]) == 10:
+                                if change_date[i][:11] == self.enydate.get(1.0,2.0):
+                                    tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                else:
+                                    date_list.append(self.enydate.get(1.0,"end"))
+                        
+                    
+                
 
             def _main_judge(s):
                 try:
-                    #s.master 為 TK 窗口
-                    #if not s.master.focus_displayof(): s._exit()
-                    #else: s.master.after(10, s._main_judge)
-
-                    #s.master 為 toplevel 窗口
                     if self.window.focus_displayof() == None or 'toplevel' not in str(self.window.focus_displayof()): s._exit()
                     else: self.window.after(10, s._main_judge)
                 except:
@@ -308,13 +332,26 @@ class PageA:
                     return True
                 else:
                     return False
+            
+            
 
         cal = Calendar()
-
+        
+        
     def click_btnYes(self):
         self.window.destroy()
         self.add_meetings()
         self.count_meetings += 1
+        
+        wb = openpyxl.load_workbook('C:/Users/sunny/Desktop/日期.xlsx')
+        sheet = wb['工作表1']
+        change_date = date_list[0].replace(" ","").split("\n")
+        for i in range(len(change_date)-2):
+            sheet.cell(row=1,column=i+2).value = change_date[i]
+        wb.save('C:/Users/sunny/Desktop/日期.xlsx')
+     
+        
+        
 
     def add_meetings(self):
         f1 = tkFont.Font(size = 30, family = "源泉圓體 B")
@@ -323,11 +360,11 @@ class PageA:
         self.newMeeting = tk.Button(self.pageA, text = meeting_name.get(), relief = "solid", height = 2, width = 10, font = f1)
         self.newMeeting.place(x = 50 + 325*int(self.count_meetings%3), y = 150 + 150*int(self.count_meetings/3))
     
-        data = openpyxl.load_workbook('紀錄會議日期時間.xlsx')
+        data = openpyxl.load_workbook('C:/Users/sunny/Desktop/日期.xlsx')
         sheet = data.create_sheet(meeting_name.get(), 0)
         # 將工作表命名為會議名稱
        
-        data.save('紀錄會議日期時間.xlsx')
+        data.save('C:/Users/sunny/Desktop/日期.xlsx')
 
 
 root.geometry("1000x700")
