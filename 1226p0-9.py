@@ -1077,7 +1077,7 @@ class Page9:
 
         self.lbl_title9 = tk.Label(self.frame_context9, text=' 會議已結束', height=1, width=10, font=f1, fg='white',
                                    bg=color_1, anchor='w').place(x=0, y=50)
-        self.lbl9_1 = tk.Label(self.frame_context9, text="會議名稱：", font=f2, bg=color_2).place(x=100, y=130)
+        self.lbl9_1 = tk.Label(self.frame_context9, text="會議名稱：", font=f2, bg=color_2)
         self.lbl9_2 = tk.Label(self.frame_context9, text=name, font=f2, bg=color_2)
         self.lbl9_3 = tk.Label(self.frame_context9, text="會議時間：", font=f2, bg=color_2)
         self.lbl9_4 = tk.Label(self.frame_context9, text=str(ws_1.cell(row=1, column=2).value), font=f2, bg=color_2)
@@ -1088,7 +1088,7 @@ class Page9:
         self.lbl9_11 = tk.Label(self.frame_context9, text="是否完成指派任務？", font=f2, bg=color_2)
         self.btn9 = tk.Button(self.frame_context9, text="確定", font=f3, bg=color_3, command=self.click_btn9_1)
 
-        # self.lbl9_1.place(x=100, y=130)
+        self.lbl9_1.place(x=100, y=130)
         self.lbl9_2.place(x=180, y=130)
         self.lbl9_3.place(x=100, y=180)
         self.lbl9_4.place(x=180, y=180)
