@@ -864,6 +864,15 @@ class Page7:
         self.page7 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
         self.page7.master.title("Page8")
         self.page7.grid()
+        # 因為scrollbar不能直接應用在frame上，所以就創了一個canvas，在canvas上加scrollbar，然後再把canvas放進frame
+        self.canvas = tk.Canvas(self.page7, width=1000, height=700, bg=color_2)
+        self.canvas.grid()
+        self.slb = tk.Scrollbar(self.page7, orient='vertical')
+        self.slb.place(x=980, width=20, height=700)
+        self.canvas.configure(yscrollcommand=self.slb.set)
+        self.slb.configure(command=self.canvas.yview)
+        self.frame_context = tk.Frame(self.canvas, width=1000, height=700, bg=color_2)
+        self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=12, family="源泉圓體 M")
@@ -891,6 +900,7 @@ class Page7:
         global absence, mission, member_list
 
         member_list = str(sheet_time.cell(row=18, column=1).value).split(',')
+        canvas_height = 160  # 計算最後頁面會有多長
         for i in range(len(member_list)):
             sheet.cell(row=i + 1, column=1).value = member_list[i]
             tk.Label(self.page7, text=member_list[i], font=f2, bg=color_2).place(x=115, y=168 + 35 * i, anchor='center')
@@ -913,8 +923,13 @@ class Page7:
             tk.Radiobutton(self.page7, variable=var_mission, value=1, bg=color_2).place(x=700, y=155 + 35 * i)
             tk.Radiobutton(self.page7, variable=var_mission, value=2, bg=color_2).place(x=770, y=155 + 35 * i)
             tk.Radiobutton(self.page7, variable=var_mission, value=3, bg=color_2).place(x=840, y=155 + 35 * i)
+            canvas_height += 35
 
         wb_record.save('%s.xlsx' % name)
+        if canvas_height > 700:
+            self.canvas.configure(scrollregion=(0,0,1000,canvas_height))
+        else:
+            self.canvas.configure(scrollregion=(0,0,1000,700))
 
     def click_btn7_1(self):
         sheet = wb_record['出缺勤']
