@@ -85,9 +85,9 @@ class Page1:
             pass
 
         for i in range(len(meeting_names)):
-            self.btn_names = tk.Button(self.page1, text=meeting_names[i], height=2, width=10, relief='solid', font=f2,
+            self.btn_names = tk.Button(self.page1, text=meeting_names[i], height=2, width=10, relief='solid', font=f1,
                                        bg='white', command=lambda a=i: self.click_btn_meetings(a))
-            self.btn_names.place(x=115 + 300 * (i % 3), y=150 + 150 * (i // 3))
+            self.btn_names.place(x=44 + 325 * (i % 3), y=150 + 150 * (i // 3))
 
     def click_btnCreate_New(self):
         self.create_window()
@@ -506,29 +506,29 @@ class Page4:
 
         global chk_btns, dates
         chk_btns = []
+        dates = []
 
-        self.date = int(sheet_time.max_column)
+        for i in range(1, len(list(sheet_time.rows)[0])):
+            if str(list(sheet_time.rows)[0][i].value) != 'None':
+                dates.append(str(list(sheet_time.rows)[0][i].value).replace("2020/", ""))
 
-        for i in range(self.date):
+        for i in range(len(dates) + 1):
             if i != 0:
                 chk_btns.append([])
             for j in range(17):
                 if i == 0:
                     if j == 0:
-                        tk.Label(self.page4, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480,
-                                                                                                                  y=80)
+                        tk.Label(self.page4, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80)
                     else:
                         tk.Label(self.page4, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
                 else:
+                    tk.Label(self.page4, relief='solid', borderwidth=1, width=7, height=2,
+                             bg=color_2).place(x=501 + 52 * i, y=80 + 30 * j)
                     if j == 0:
-                        tk.Label(self.page4, text=str(sheet_time[str(alphabet[i - 1]) + str(1)].value), relief='solid',
-                                 borderwidth=1, width=7, height=2,
-                                 bg=color_2).place(x=501 + 52 * i, y=80 + 30 * j)
+                        tk.Label(self.page4, text=dates[i - 1], relief='solid', borderwidth=1, width=7, height=2,
+                                 bg=color_2).place(x=501 + 52 * i, y=80)
                     else:
-                        tk.Label(self.page4, relief='solid', borderwidth=1, width=7, height=2,
-                                 bg=color_2).place(x=501 + 52 * i, y=80 + 30 * j)
-                    if j != 0:
                         var_i = tk.IntVar()
                         tk.Checkbutton(self.page4, onvalue=1, offvalue=0, variable=var_i,
                                        bg=color_2).place(x=518 + 52 * i, y=85 + 30 * j)
@@ -541,7 +541,7 @@ class Page4:
             member = str(sheet_time.cell(row=18, column=1).value)
             if member == 'None':
                 list_member = [var_name.get()]
-                for i in range(7):
+                for i in range(len(dates)):
                     for j in range(16):
                         if chk_btns[i][j].get() == 1:
                             available = str(sheet_time.cell(row=j + 2, column=i + 2).value)
@@ -555,7 +555,7 @@ class Page4:
                 list_member = member.split(',')
                 if var_name.get() not in list_member:
                     list_member.append(var_name.get())
-                    for i in range(7):
+                    for i in range(len(dates)):
                         for j in range(16):
                             if chk_btns[i][j].get() == 1:
                                 available = str(sheet_time.cell(row=j + 2, column=i + 2).value)
@@ -566,7 +566,7 @@ class Page4:
                                     list_available.append(var_name.get())
                                 sheet_time.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
                 else:
-                    for i in range(7):
+                    for i in range(len(dates)):
                         for j in range(16):
                             available = str(sheet_time.cell(row=j + 2, column=i + 2).value)
                             if chk_btns[i][j].get() == 1:
@@ -594,11 +594,11 @@ class Page4:
 
     def click_selectall(self):
         if var_selectall.get() == 1:
-            for i in range(7):
+            for i in range(int(sheet_time.max_column) - 1):
                 for j in range(16):
                     chk_btns[i][j].set(1)
         else:
-            for i in range(7):
+            for i in range(int(sheet_time.max_column) - 1):
                 for j in range(16):
                     chk_btns[i][j].set(0)
 
@@ -620,6 +620,7 @@ class Page5:
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=12, family="源泉圓體 M")
         f3 = tkfont.Font(size=15, family="源泉圓體 M")
+        f4 = tkfont.Font(size=10, family="源泉圓體 M")
 
         self.lab_title = tk.Label(self.page5, text=" 查看所有人的時間", height=1, width=15, font=f1, bg=color_1,
                                   fg='white', anchor='w').place(x=0, y=50)
@@ -667,21 +668,27 @@ class Page5:
         for member in all_members:
             self.lst_allmembers.insert("end", member)
 
-        self.btn_try = tk.Button(self.page5, text='try', font=f2, width=5, command=self.click_btn_try)
-        self.btn_reset = tk.Button(self.page5, text='reset', font=f2, width=5, command=self.click_btn_reset)
+        self.btn_try = tk.Button(self.page5, text='try', font=f4, width=5, command=self.click_btn_try)
+        self.btn_reset = tk.Button(self.page5, text='reset', font=f4, width=5, command=self.click_btn_reset)
 
-        self.btn_try.place(x=290, y=570)
-        self.btn_reset.place(x=355, y=570)
+        self.btn_try.place(x=298, y=570)
+        self.btn_reset.place(x=363, y=570)
 
         self.lst_color = tk.Listbox(self.page5, width=14, height=7, font=f2, selectmode=tk.MULTIPLE,
                                     yscrollcommand=self.scroll_color.set)
         self.lst_color.place(x=285, y=425)
         self.color = str()
 
-        global color_list, people_list, btn_list
+        global color_list, people_list, btn_list, dates
         color_list = []
         people_list = []
         btn_list = []
+
+        dates = []
+
+        for i in range(1, len(list(sheet_time.rows)[0])):
+            if str(list(sheet_time.rows)[0][i].value) != 'None':
+                dates.append(str(list(sheet_time.rows)[0][i].value).replace("2020/", ""))
 
         for i in range(how_many_people):
             self.lst_color.insert('end', i + 1)
@@ -689,7 +696,7 @@ class Page5:
             color_list.append(self.color)
             self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)
 
-        for i in range(8):
+        for i in range(len(dates) + 1):
             if i != 0:
                 people_list.append([])
                 btn_list.append([])
@@ -704,7 +711,11 @@ class Page5:
                 else:
                     tk.Label(self.page5, relief='solid', borderwidth=1, width=7, height=2,
                              bg=color_2).place(x=501 +52 * i, y=80 + 30 * j)
-                    if j != 0:
+
+                    if j == 0:
+                        tk.Label(self.page5, text=dates[i - 1], relief='solid', borderwidth=1, width=7, height=2,
+                                 bg=color_2).place(x=501 + 52 * i, y=80)
+                    else:
                         how_many_available = len(str(sheet_time.cell(row=j + 1, column=i + 1).value).split(','))
                         if str(sheet_time.cell(row=j + 1, column=i + 1).value) == 'None':
                             how_many_available = 0
@@ -729,7 +740,7 @@ class Page5:
         for i in number_choose_tuple:
             number_choose.append(self.lst_color.get(i))
 
-        for i in range(7):
+        for i in range(len(dates)):
             for j in range(16):
                 for k in range(len(number_choose)):
                     if k == 0:
@@ -752,7 +763,7 @@ class Page5:
             self.lst_color.insert(k - 1, k)
             self.lst_color.itemconfig(k - 1, bg=color_list[k - 1])
 
-        for i in range(1, 8):
+        for i in range(1, len(dates) + 1):
             for j in range(1, 17):
                 how_many_available = len(str(sheet_time.cell(row=j + 1, column=i + 1).value).split(','))
                 if str(sheet_time.cell(row=j + 1, column=i + 1).value) == 'None':
@@ -801,8 +812,8 @@ class Page6:
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
         f3 = tkfont.Font(size=15, family="源泉圓體 M")
 
-        self.lblTitle_6 = tk.Label(self.page6, text=' ' + name + '-紀錄', height=1, width=15, font=f1, bg=color_1, fg='white',
-                                   anchor='w').place(x=0, y=50)
+        self.lblTitle_6 = tk.Label(self.page6, text=' ' + name + '-紀錄', height=1, width=15, font=f1, bg=color_1,
+                                   fg='white', anchor='w').place(x=0, y=50)
         self.btn6_1 = tk.Button(self.page6, text="出缺勤", height=1, width=18, font=f2, relief='solid', fg=color_1,
                                 command=self.click_btn6_1)
         self.btn6_2 = tk.Button(self.page6, text="會議記錄", height=1, width=18, font=f2, relief='solid', fg=color_1,
@@ -882,7 +893,7 @@ class Page7:
         member_list = str(sheet_time.cell(row=18, column=1).value).split(',')
         for i in range(len(member_list)):
             sheet.cell(row=i + 1, column=1).value = member_list[i]
-            tk.Label(self.page7, text=member_list[i], font=f2, bg=color_2).place(x=115, y=155 + 35 * i)
+            tk.Label(self.page7, text=member_list[i], font=f2, bg=color_2).place(x=115, y=168 + 35 * i, anchor='center')
             tk.Label(self.page7, text='是否完成指派任務？', font=f2, bg=color_2).place(x=515, y=155 + 35 * i)
 
             if len(absence) != len(member_list):
