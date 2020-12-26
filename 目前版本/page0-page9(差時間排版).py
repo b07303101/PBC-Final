@@ -882,7 +882,7 @@ class Page7:
                                   anchor='w').place(x=0, y=50)
 
         self.btn7_1 = tk.Button(self.page7, text="確定", font=f3, bg=color_3, command=self.click_btn7_1)
-        self.btn7_1.place(relx=0.5, y=620, anchor='center')
+        self.btn7_1.place(x=850, y=60, anchor='center')
 
         self.lab7_1 = tk.Label(self.page7, text="準時", font=f2, bg=color_2).place(x=179, y=125)
         self.lab7_2 = tk.Label(self.page7, text="遲到", font=f2, bg=color_2).place(x=279, y=125)
