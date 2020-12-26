@@ -903,8 +903,8 @@ class Page7:
         canvas_height = 160  # 計算最後頁面會有多長
         for i in range(len(member_list)):
             sheet.cell(row=i + 1, column=1).value = member_list[i]
-            tk.Label(self.page7, text=member_list[i], font=f2, bg=color_2).place(x=115, y=168 + 35 * i, anchor='center')
-            tk.Label(self.page7, text='是否完成指派任務？', font=f2, bg=color_2).place(x=515, y=155 + 35 * i)
+            tk.Label(self.frame_context, text=member_list[i], font=f2, bg=color_2).place(x=115, y=168 + 35 * i, anchor='center')
+            tk.Label(self.frame_context, text='是否完成指派任務？', font=f2, bg=color_2).place(x=515, y=155 + 35 * i)
 
             if len(absence) != len(member_list):
                 var_absence = tk.IntVar()
