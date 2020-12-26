@@ -88,48 +88,55 @@ class Page1:
             self.btn_names = tk.Button(self.page1, text=meeting_names[i], height=2, width=10, relief='solid', font=f1,
                                        bg='white', command=lambda a=i: self.click_btn_meetings(a))
             self.btn_names.place(x=44 + 325 * (i % 3), y=150 + 150 * (i // 3))
+            if finish_meeting[i] == 'finished':
+                self.btn_names.config(fg='light grey')
 
     def click_btnCreate_New(self):
         self.create_window()
 
     def create_window(self):
+        global date_list
+        date_list = []
+
         f1 = tkfont.Font(size=20, family="源泉圓體 B")
         f2 = tkfont.Font(size=15, family="源泉圓體 M")
+        f3 = tkfont.Font(size=10, family="源泉圓體 M")
 
         self.window = tk.Toplevel()
         self.window.geometry('600x420')
-        self.window.title('會議時間')
-        self.text = tk.StringVar()
-        self.text.set("測試")
+        self.window.resizable(0, 0)
+        self.window.title('會議日期')
         self.window.configure(bg=self._from_rgb((208, 224, 227)))
+
         self.lblTitle_B = tk.Label(self.window, text=" 創建新會議", height=1, width=15, font=f1,
                                    bg=self._from_rgb((68, 84, 106)), fg='white', anchor='w')
         self.lblname = tk.Label(self.window, text="會議名稱：", bg=self._from_rgb((208, 224, 227)), height=1, width=10,
                                 font=f2)
         self.lblchoose = tk.Label(self.window, text="你已選擇：", bg=self._from_rgb((208, 224, 227)), height=1, width=10,
                                   font=f2)
-        self.btncancel = tk.Button(self.window,text = "刪除日期", width=8, fg=self._from_rgb((68, 84, 106)), font=f2,
-                                   command = self.cancel)  # 新增刪除日期
 
         global meeting_name
 
         meeting_name = tk.StringVar()
         self.inputname = tk.Entry(self.window, textvariable=meeting_name, width=30, font=f2)
-        self.lstdate = tk.Listbox(self.window, height=7, width=15, font=f2,selectmode = tk.MULTIPLE)
+
+        self.enydate = tk.Listbox(self.window, height=7, width=15, font=f2, selectmode=tk.MULTIPLE)
+
         width = root.winfo_reqwidth() + 50
         height = 100  # 窗口大小
         x, y = (root.winfo_screenwidth() - width) / 2, (root.winfo_screenheight() - height) / 2
 
         self.btnYes = tk.Button(self.window, text="確認", height=1, width=5, bg=self._from_rgb((255, 217, 102)), font=f2,
                                 command=self.click_btnYes)
+        self.btn_delete = tk.Button(self.window, text="刪除日期", font=f3, command=self.click_btn_delete)
 
         self.lblTitle_B.place(x=0, y=25)
         self.lblname.place(x=70, y=75)
         self.lblchoose.place(x=70, y=105)
-        self.lstdate.place(x=80, y=128)
-        self.btncancel.place(x=110,y = 305)
+        self.enydate.place(x=80, y=140)
         self.inputname.place(x=190, y=75)
         self.btnYes.place(relx=0.5, y=380, anchor='center')
+        self.btn_delete.place(x=130, y=320)
 
         datetime = calendar.datetime.datetime  # 日期和時間結合(從這邊複製)
         timedelta = calendar.datetime.timedelta  # 時間差
@@ -139,20 +146,15 @@ class Page1:
                 # point    窗口位置
                 # position 窗口在點的位置 'ur'-右上, 'ul'-左上, 'll'-左下, 'lr'-右下
                 fwday = calendar.SUNDAY
-
                 year = datetime.now().year  # 打開頁面時為當下年份
                 month = datetime.now().month  # 打開頁面時為當下月份
                 locale = None  # 地域設定
                 sel_bg = '#ecffc4'  # 點擊後框框色
                 sel_fg = '#05640e'  # 點擊後字底色
-
                 s._date = datetime(year, month, 1)  # 該月份第一天
                 s._selection = None  # 設置未選中的日期
-
                 s.G_Frame = ttk.Frame(self.window)
-
                 s._cal = s.__get_calendar(locale, fwday)  # 實例化適當的日曆類
-
                 s.__setup_styles()  # 創建自定義樣式
                 s.__place_widgets()  # pack/grid 小部件
                 s.__config_calendar()  # 調整日曆列和安裝標記
@@ -160,10 +162,8 @@ class Page1:
                 s.__setup_selection(sel_bg, sel_fg)
                 # 存儲項ID，用於稍後插入。
                 s._items = [s._calendar.insert('', 'end', values='') for _ in range(6)]
-
                 # 在當前空日曆中插入日期
                 s._update()
-
                 s.G_Frame.place(x=290, y=120)
                 self.window.update_idletasks()  # 刷新頁面
 
@@ -180,7 +180,7 @@ class Page1:
             def __setup_styles(s):  # 自定義TTK風格
                 style = ttk.Style(self.window)
                 arrow_layout = lambda dir: (
-                    [('Button.focus', {'children': [('Button.%sarrow' % dir, None)]})])  # 返回參數性質
+                [('Button.focus', {'children': [('Button.%sarrow' % dir, None)]})])  # 返回參數性質
                 style.layout('L.TButton', arrow_layout('left'))  # 製作點選上個月的箭頭
                 style.layout('R.TButton', arrow_layout('right'))  # 製作點選下個月的箭頭
 
@@ -192,7 +192,6 @@ class Page1:
                 hframe.pack(in_=s.G_Frame, side='top', pady=5, anchor='center')  # 日曆的上視窗
                 gframe.pack(in_=s.G_Frame, fill=tk.X, pady=5)
                 bframe.pack(in_=s.G_Frame, side='bottom', pady=5)
-
                 lbtn = ttk.Button(hframe, style='L.TButton', command=s._prev_month)  # 左箭頭
                 lbtn.grid(in_=hframe, column=0, row=0, padx=12)
                 rbtn = ttk.Button(hframe, style='R.TButton', command=s._next_month)  # 右箭頭
@@ -207,7 +206,6 @@ class Page1:
                 s.CB_year.bind("<<ComboboxSelected>>", s._update)
                 tk.Label(hframe, text='年', justify='left').grid(in_=hframe, column=2, row=0,
                                                                 padx=(0, 5))  # 下拉式選單後面的單位(年)
-
                 s.CB_month = ttk.Combobox(hframe, width=3, values=['%02d' % month for month in range(1, 13)],
                                           state='readonly')  # 下拉式選單-月
                 s.CB_month.current(datetime.now().month - 1)
@@ -217,8 +215,8 @@ class Page1:
                 # 日曆部件
                 s._calendar = ttk.Treeview(gframe, show='', selectmode='none', height=7)
                 s._calendar.pack(expand=1, fill='both', side='bottom', padx=5)
-                ttk.Button(bframe, text="加入", width=6, command=lambda: s._exit(True)).grid(row=0, column=0, sticky='ns',
-                                                                                           padx=20)
+                ttk.Button(bframe, text="加入", width=6, command=lambda: s._exit(confirm=True)).grid(row=0, column=0,
+                                                                                                   sticky='se', padx=20)
                 tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=0, relwidth=1, relheigh=2 / 200)
                 tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=198 / 200, relwidth=1, relheigh=2 / 200)
                 tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=0, relwidth=2 / 200, relheigh=1)
@@ -256,7 +254,6 @@ class Page1:
 
             def _show_select(s, text, bbox):  # 秀出挑選的日子
                 x, y, width, height = bbox
-
                 textw = s._font.measure(text)
                 canvas = s._canvas
                 canvas.configure(width=width, height=height)
@@ -289,7 +286,6 @@ class Page1:
             def _prev_month(s):
                 s._canvas.place_forget()
                 s._selection = None
-
                 s._date = s._date - timedelta(days=1)
                 s._date = datetime(s._date.year, s._date.month, 1)
                 s.CB_year.set(s._date.year)
@@ -299,7 +295,6 @@ class Page1:
             def _next_month(s):
                 s._canvas.place_forget()
                 s._selection = None
-
                 year, month = s._date.year, s._date.month
                 s._date = s._date + timedelta(
                     days=calendar.monthrange(year, month)[1] + 1)
@@ -309,10 +304,15 @@ class Page1:
                 s._update()
 
             def _update(s, event=None, key=None):
-                if key and event.keysym != 'Return': return
+                if key and event.keysym != 'Return':
+                    return
+
                 year = int(s.CB_year.get())
                 month = int(s.CB_month.get())
-                if year == 0 or year > 9999: return
+
+                if year == 0 or year > 9999:
+                    return
+
                 s._canvas.place_forget()
                 s._date = datetime(year, month, 1)
                 s._build_calendar()  # 重建日曆
@@ -325,41 +325,31 @@ class Page1:
                             column = '#' + str(day_list.index(day) + 1)
                             self.window.after(100, lambda: s._pressed(item=item, column=column, widget=s._calendar))
 
-            def _exit(s, confirm = False):  # 更改點選加入後情況
-                
-                name = ""
-                date = ""
-                    
-                if self.inputname != "":
-                    name = self.inputname.get()
+            def _exit(s, confirm=False):
                 if not confirm:
-                    s._selection = None
-                year = s._date.year
-                month = s._date.month
-                compare_list = []
-                if len(self.lstdate.get(0,"end"))!= 0 :
-                    compare_list = self.lstdate.get(0,"end")
-                    date = self.lstdate.get(0,"end")                    
-                count = 0
-                
-                if self.lstdate.index("end") == 7:
-                    self.window.lower(belowThis=None)
-                    (tkmessage.showinfo(title="日期已滿", message="您已無法再選取日期"))
-                    self.window.wm_attributes('-topmost',1)
-                    meeting_name.set(name)
-                    self.text.set(date)
+                    pass
                 else:
-                    for i in range(len(compare_list)):
-                        if (str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))+"\n") == compare_list[i]:
-                            count += 1
-                    if count == 0 :
-                        self.lstdate.insert(tk.END,(str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))+"\n")) 
+                    year = s._date.year
+                    month = s._date.month
+                    date = str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))
+
+                    if len(date_list) != 0:
+                        if date in date_list:
+                            self.window.lower(belowThis=self.page1)
+                            tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                            self.window.wm_attributes('-topmost', 1)
+                        else:
+                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                            if len(date_list) > 7:
+                                del date_list[7]
+                                self.window.lower(belowThis=self.page1)
+                                tkmessage.showerror(title="日期數量超出範圍", message="至多只能選擇7個日期！")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
                     else:
-                        self.window.lower(belowThis=None)
-                        (tkmessage.showinfo(title="日期重複", message="此日期已選擇"))
-                        self.window.wm_attributes('-topmost',1)
-                        meeting_name.set(name)
-                        self.text.set(date)
+                        self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                        date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
 
             def _main_judge(s):
                 try:
@@ -375,6 +365,7 @@ class Page1:
                     return None
                 year = s._date.year
                 month = s._date.month
+
                 return str(datetime(year, month, int(s._selection[0])))[:10]
 
             def Input_judgment(s, content):
@@ -384,83 +375,69 @@ class Page1:
                     return False
 
         cal = Calendar()
-    def cancel(self):
-        name = ""
-        date = ""
-        if self.inputname != "":
-            name = self.inputname.get()
-        if len(self.lstdate.get(0,"end")) != 0:
-            date = self.lstdate.get(0,"end")
-        if len(self.lstdate.curselection()) == 0:  # 如果沒有選取listbox
-            self.window.lower(belowThis=None)
-            (tkmessage.showinfo(title="請選擇日期", message="請選擇欲取消日期"))
-            self.window.wm_attributes('-topmost',1)
-            meeting_name.set(name)
-            self.text.set(date)
-               
-        else:
-            delete_list = []
-            for i in range(len(self.lstdate.curselection())):
-                delete_list.append(self.lstdate.curselection()[i])
-            for j in range(len(delete_list)):
-                self.lstdate.delete(delete_list[j]-j)
+
+    def click_btn_delete(self):
+        choose = []
+        choose_date = []
+        choose_tuple = self.enydate.curselection()
+        global date_list
+
+        for i in choose_tuple:
+            choose.append(i)
+            choose_date.append(str(self.enydate.get(i)))
+
+        for k in range(len(choose)):
+            self.enydate.delete(choose[k] - k)
+
+        for k in choose_date:
+            date_list.remove(k)
 
     def click_btnYes(self):
-        date = ""
-        if self.inputname != "":
-            name = self.inputname.get()
-        if str(self.lstdate.get(0,"end")) != "( )":
-            compare_list = self.lstdate.get(0,"end")
-            date = self.lstdate.get(0,"end")
-            
-        if self.inputname.get() == "" or len(self.lstdate.get(0,"end")) == 0:
-            if self.inputname.get() == "" and len(self.lstdate.get(0,"end")) != 0:
-                self.window.lower(belowThis=None)
-                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議名稱"))
-                self.window.wm_attributes('-topmost',1)
-                meeting_name.set(name)
-                self.text.set(date)
-            elif len(self.lstdate.get(0,"end")) == 0 and self.inputname.get() != "":
-                self.window.lower(belowThis=None)
-                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議日期"))
-                self.window.wm_attributes('-topmost',1)
-                meeting_name.set(name)
-                self.text.set(date)
-            elif len(self.lstdate.get(0,"end")) == 0 and self.inputname.get() == "":
-                self.window.lower(belowThis=None)
-                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議名稱及日期"))
-                self.window.wm_attributes('-topmost',1)
-                meeting_name.set(name)
-                self.text.set(date)
+        if self.enydate.size() != 0 and self.inputname.get() == "":
+            self.window.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入會議名稱")
+            self.window.wm_attributes('-topmost', 1)
+        elif self.enydate.size() == 0 and self.inputname.get() != "":
+            self.window.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入會議日期")
+            self.window.wm_attributes('-topmost', 1)
+        elif self.enydate.size() == 0 and self.inputname.get() == "":
+            self.window.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入會議名稱及日期")
+            self.window.wm_attributes('-topmost', 1)
         else:
-            date_list = []
-            date_list.append(self.lstdate.get(0,"end"))
-            self.window.destroy()
-            new_wb = openpyxl.Workbook()
-            ws1 = new_wb.active
-            name = meeting_name.get()
-            ws1.title = name
-            change_date = date_list[0].replace(" ", "").split("\n")
-            
-            
+            global meeting_names
+            if self.inputname.get() in meeting_names:
+                self.window.lower(belowThis=None)
+                tkmessage.showerror(title="會議名稱錯誤", message="此會議名稱已存在")
+                self.window.wm_attributes('-topmost', 1)
+            else:
+                self.window.destroy()
+                new_wb = openpyxl.Workbook()
+                ws1 = new_wb.active
+                name = meeting_name.get()
+                ws1.title = name
 
-            for i in range(len(change_date)):
-                ws1.cell(row=1, column=i + 2).value = change_date[i]
+                global date_list
+                date_list = sorted(date_list)
 
-            new_wb.save('%s.xlsx' % str(name))
+                for i in range(len(date_list)):
+                    ws1.cell(row=1, column=i + 2).value = date_list[i]
 
-            global meeting_names, finish_meeting
-            meeting_names.append(meeting_name.get())
-            finish_meeting.append('unfinished')
+                new_wb.save('%s.xlsx' % str(name))
 
-            for i in range(len(meeting_names)):
-                sheet_names.cell(row=i + 1, column=1).value = meeting_names[i]
-                sheet_names.cell(row=i + 1, column=2).value = finish_meeting[i]
+                global finish_meeting
+                meeting_names.append(meeting_name.get())
+                finish_meeting.append('unfinished')
 
-            names.save('會議名稱.xlsx')
+                for i in range(len(meeting_names)):
+                    sheet_names.cell(row=i + 1, column=1).value = meeting_names[i]
+                    sheet_names.cell(row=i + 1, column=2).value = finish_meeting[i]
 
-            self.page1.destroy()
-            Page1()
+                names.save('會議名稱.xlsx')
+
+                self.page1.destroy()
+                Page1()
 
     def click_btn_meetings(self, a):
         global name, wb_record, sheet_time, finish_meeting, location
@@ -500,8 +477,8 @@ class Page3:
                                     anchor='w')
         self.btn_createtime = tk.Button(self.page3, text="新增你的時間", height=1, width=18, font=f2, fg=color_1,
                                         relief='solid', command=self.click_btn_createtime)
-        self.btn_times = tk.Button(self.page3, text="查看所有人的時間", height=1, width=18, font=f2, fg=color_1, relief='solid',
-                                   command=self.click_btn_times)
+        self.btn_times = tk.Button(self.page3, text="查看所有人的時間", height=1, width=18, font=f2, fg=color_1,
+                                   relief='solid', command=self.click_btn_times)
         self.btn_meetingrecord = tk.Button(self.page3, text="紀錄會議", height=1, width=18, font=f2, fg=color_1,
                                            relief='solid', command=self.click_btn_meetingrecord)
         self.btn_back = tk.Button(self.page3, text="返回", height=1, font=f3, command=self.click_btn_back, bg=color_3)
@@ -578,7 +555,7 @@ class Page4:
 
         for i in range(1, len(list(sheet_time.rows)[0])):
             if str(list(sheet_time.rows)[0][i].value) != 'None':
-                dates.append(str(list(sheet_time.rows)[0][i].value).replace("2020/", ""))
+                dates.append(str(list(sheet_time.rows)[0][i].value)[5:])
 
         for i in range(len(dates) + 1):
             if i != 0:
@@ -586,7 +563,8 @@ class Page4:
             for j in range(17):
                 if i == 0:
                     if j == 0:
-                        tk.Label(self.page4, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80)
+                        tk.Label(self.page4, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480,
+                                                                                                                  y=80)
                     else:
                         tk.Label(self.page4, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
@@ -751,12 +729,11 @@ class Page5:
         color_list = []
         people_list = []
         btn_list = []
-
         dates = []
 
         for i in range(1, len(list(sheet_time.rows)[0])):
             if str(list(sheet_time.rows)[0][i].value) != 'None':
-                dates.append(str(list(sheet_time.rows)[0][i].value).replace("2020/", ""))
+                dates.append(str(list(sheet_time.rows)[0][i].value)[5:])
 
         for i in range(how_many_people):
             self.lst_color.insert('end', i + 1)
@@ -821,15 +798,7 @@ class Page5:
                             btn_list[i][j].config(bg=str(color_list[int(number_choose[k]) - 1]))
 
     def click_btn_reset(self):
-        number_choose = list()
-        number_choose_tuple = self.lst_color.curselection()
-        for i in number_choose_tuple:
-            number_choose.append(int(self.lst_color.get(i)))
-
-        for k in number_choose:
-            self.lst_color.delete(k - 1)
-            self.lst_color.insert(k - 1, k)
-            self.lst_color.itemconfig(k - 1, bg=color_list[k - 1])
+        self.lst_color.select_clear(first=0, last="end")
 
         for i in range(1, len(dates) + 1):
             for j in range(1, 17):
@@ -971,7 +940,8 @@ class Page7:
         canvas_height = 160  # 計算最後頁面會有多長
         for i in range(len(member_list)):
             sheet.cell(row=i + 1, column=1).value = member_list[i]
-            tk.Label(self.frame_context, text=member_list[i], font=f2, bg=color_2).place(x=115, y=168 + 35 * i, anchor='center')
+            tk.Label(self.frame_context, text=member_list[i], font=f2, bg=color_2).place(x=115, y=168 + 35 * i,
+                                                                                         anchor='center')
             tk.Label(self.frame_context, text='是否完成指派任務？', font=f2, bg=color_2).place(x=515, y=155 + 35 * i)
 
             if len(absence) != len(member_list):
@@ -994,13 +964,11 @@ class Page7:
             canvas_height += 35
 
         if canvas_height > 700:
-            self.canvas.configure(scrollregion=(0,0,1000,canvas_height+30))
+            self.canvas.configure(scrollregion=(0, 0, 1000, canvas_height + 30))
         else:
-            self.canvas.configure(scrollregion=(0,0,1000,700))
+            self.canvas.configure(scrollregion=(0, 0, 1000, 700))
 
         wb_record.save('%s.xlsx' % name)
-
-        
 
     def click_btn7_1(self):
         sheet = wb_record['出缺勤']
@@ -1040,18 +1008,13 @@ class Page8:
         self.page8.grid()
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
-        f2 = tkfont.Font(size=12, family="源泉圓體 M")
-        f3 = tkfont.Font(size=15, family="源泉圓體 M")
+        f2 = tkfont.Font(size=15, family="源泉圓體 M")
 
         self.lbl8_1 = tk.Label(self.page8, text=" 會議記錄", height=1, width=15, font=f1, fg='white', bg=color_1,
                                anchor='w')
-        self.record = tk.Text(self.page8, height=23, width=90, font=f2)
-        self.btn8 = tk.Button(self.page8, text='確認', font=f3, bg=color_3, command=self.click_btn8)
-        self.lbl8_2 = tk.Label(self.page8, text="會議時間：", font=f3, bg=color_2)
-
-        global var_times
-        var_times = tk.StringVar()
-        self.entry8 = tk.Entry(self.page8, textvariable=var_times, width=18, font=f3)
+        self.record = tk.Text(self.page8, height=18, width=74, font=f2)
+        self.btn8 = tk.Button(self.page8, text='確認', font=f2, bg=color_3, command=self.click_btn8)
+        self.lbl8_2 = tk.Label(self.page8, text="會議時間：", font=f2, bg=color_2)
 
         global meeting_record
         try:
@@ -1061,6 +1024,12 @@ class Page8:
 
         if str(meeting_record.cell(row=1, column=1).value) != 'None':
             self.record.insert("1.0", str(meeting_record.cell(row=1, column=1).value))
+
+        global var_times
+        var_times = tk.StringVar()
+        if str(meeting_record.cell(row=1, column=2).value) != 'None':
+            var_times.set(meeting_record.cell(row=1, column=2).value)
+        self.entry8 = tk.Entry(self.page8, textvariable=var_times, width=18, font=f2)
 
         self.lbl8_1.place(x=0, y=50)
         self.record.place(relx=0.5, rely=0.5, anchor='center')
@@ -1096,7 +1065,7 @@ class Page9:
         self.slb9.place(x=980, width=20, height=700)
         self.canvas9.configure(yscrollcommand=self.slb9.set)
         self.slb9.configure(command=self.canvas9.yview)
-        self.frame_context9 = tk.Frame(self.canvas9, width=2000, height=100000*1000000, bg=color_2)
+        self.frame_context9 = tk.Frame(self.canvas9, width=2000, height=100000 * 1000000, bg=color_2)
         self.canvas9.create_window((0, 0), window=self.frame_context9, anchor='nw')
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -1106,10 +1075,9 @@ class Page9:
         ws_1 = wb_record['Meeting record']
         ws_2 = wb_record['出缺勤']
 
-
-        self.lbl_title9 = tk.Label(self.frame_context9, text=' 結束會議', height=1, width=10, font=f1, fg='white', bg=color_1,
-                                   anchor='w').place(x=0, y=50)
-        self.lbl9_1 = tk.Label(self.frame_context9, text="會議名稱：", font=f2, bg=color_2)
+        self.lbl_title9 = tk.Label(self.frame_context9, text=' 會議已結束', height=1, width=10, font=f1, fg='white',
+                                   bg=color_1, anchor='w').place(x=0, y=50)
+        self.lbl9_1 = tk.Label(self.frame_context9, text="會議名稱：", font=f2, bg=color_2).place(x=100, y=130)
         self.lbl9_2 = tk.Label(self.frame_context9, text=name, font=f2, bg=color_2)
         self.lbl9_3 = tk.Label(self.frame_context9, text="會議時間：", font=f2, bg=color_2)
         self.lbl9_4 = tk.Label(self.frame_context9, text=str(ws_1.cell(row=1, column=2).value), font=f2, bg=color_2)
@@ -1120,7 +1088,7 @@ class Page9:
         self.lbl9_11 = tk.Label(self.frame_context9, text="是否完成指派任務？", font=f2, bg=color_2)
         self.btn9 = tk.Button(self.frame_context9, text="確定", font=f3, bg=color_3, command=self.click_btn9_1)
 
-        self.lbl9_1.place(x=100, y=130)
+        # self.lbl9_1.place(x=100, y=130)
         self.lbl9_2.place(x=180, y=130)
         self.lbl9_3.place(x=100, y=180)
         self.lbl9_4.place(x=180, y=180)
@@ -1135,8 +1103,8 @@ class Page9:
         self.scroll_meeting_record = tk.Scrollbar(self.frame_context9)
         self.scroll_meeting_record.place(x=850, y=260, relheight=0.08)
         var_meeting_record = tk.StringVar()
-        self.lst_meeting_record = tk.Listbox(self.frame_context9, listvariable=var_meeting_record, font=f2, width=90, height=10,
-                                         yscrollcommand=self.scroll_meeting_record.set)
+        self.lst_meeting_record = tk.Listbox(self.frame_context9, listvariable=var_meeting_record, font=f2, width=90,
+                                             height=10, yscrollcommand=self.scroll_meeting_record.set)
         self.lst_meeting_record.place(x=100, y=260)
         for record9 in str(ws_1.cell(row=1, column=1).value).split('\n'):
             self.lst_meeting_record.insert("end", record9)
@@ -1148,19 +1116,17 @@ class Page9:
         canvas_height_p9 = 440
         for i in range(len(member_list)):
             self.lbl9_8 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=1).value), font=f2,
-                                   bg=color_2).place(x=100, y=480 + 40*i)
+                                   bg=color_2).place(x=100, y=480 + 40 * i)
             self.lbl9_10 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=2).value), font=f2,
-                                    bg=color_2).place(x=300, y=480 + 40*i)
+                                    bg=color_2).place(x=300, y=480 + 40 * i)
             self.lbl9_12 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=3).value), font=f2,
-                                    bg=color_2).place(x=600, y=480 + 40*i)
+                                    bg=color_2).place(x=600, y=480 + 40 * i)
             canvas_height_p9 += 40
 
         if canvas_height_p9 > 700:
-            self.canvas9.configure(scrollregion=(0,0,1000,canvas_height_p9+50))
+            self.canvas9.configure(scrollregion=(0, 0, 1000, canvas_height_p9 + 50))
         else:
-            self.canvas9.configure(scrollregion=(0,0,1000,700))
-
-            
+            self.canvas9.configure(scrollregion=(0, 0, 1000, 700))
 
     def click_btn9_1(self):
         self.page9.destroy()
