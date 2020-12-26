@@ -108,12 +108,14 @@ class Page1:
                                 font=f2)
         self.lblchoose = tk.Label(self.window, text="你已選擇：", bg=self._from_rgb((208, 224, 227)), height=1, width=10,
                                   font=f2)
+        self.btncancel = tk.Button(self.window,text = "刪除日期", width=8, fg=self._from_rgb((68, 84, 106)), font=f2,
+                                   command = self.cancel)  # 新增刪除日期
 
         global meeting_name
 
         meeting_name = tk.StringVar()
         self.inputname = tk.Entry(self.window, textvariable=meeting_name, width=30, font=f2)
-        self.enydate = tk.Text(self.window, height=7.4, width=15, font=f2)
+        self.lstdate = tk.Listbox(self.window, height=7, width=15, font=f2,selectmode = tk.MULTIPLE)
         width = root.winfo_reqwidth() + 50
         height = 100  # 窗口大小
         x, y = (root.winfo_screenwidth() - width) / 2, (root.winfo_screenheight() - height) / 2
@@ -124,7 +126,8 @@ class Page1:
         self.lblTitle_B.place(x=0, y=25)
         self.lblname.place(x=70, y=75)
         self.lblchoose.place(x=70, y=105)
-        self.enydate.place(x=80, y=140)
+        self.lstdate.place(x=80, y=128)
+        self.btncancel.place(x=110,y = 305)
         self.inputname.place(x=190, y=75)
         self.btnYes.place(relx=0.5, y=380, anchor='center')
 
@@ -322,26 +325,41 @@ class Page1:
                             column = '#' + str(day_list.index(day) + 1)
                             self.window.after(100, lambda: s._pressed(item=item, column=column, widget=s._calendar))
 
-            def _exit(s, confirm=False):
-
-                global date_list
-                date_list = []
+            def _exit(s, confirm = False):  # 更改點選加入後情況
+                
+                name = ""
+                date = ""
+                    
+                if self.inputname != "":
+                    name = self.inputname.get()
                 if not confirm:
                     s._selection = None
                 year = s._date.year
                 month = s._date.month
-                self.enydate.insert(1.0, (str(year) + "/" + str(month) + "/" + str(int(s._selection[0])) + "\n"))
-                if len(date_list) == 0:
-                    date_list.append(self.enydate.get(1.0, "end"))
+                compare_list = []
+                if len(self.lstdate.get(0,"end"))!= 0 :
+                    compare_list = self.lstdate.get(0,"end")
+                    date = self.lstdate.get(0,"end")                    
+                count = 0
+                
+                if self.lstdate.index("end") == 7:
+                    self.window.lower(belowThis=None)
+                    (tkmessage.showinfo(title="日期已滿", message="您已無法再選取日期"))
+                    self.window.wm_attributes('-topmost',1)
+                    meeting_name.set(name)
+                    self.text.set(date)
                 else:
-                    change_date = date_list[0].replace(" ", "").split("\n")
-                    for i in range(len(change_date)):
-                        if len(change_date[i]) == 10:
-                            if change_date[i][:11] == self.enydate.get(1.0, 2.0):
-                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
-                            else:
-                                date_list.append(self.enydate.get(1.0, "end"))
-                # print(date_list)
+                    for i in range(len(compare_list)):
+                        if (str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))+"\n") == compare_list[i]:
+                            count += 1
+                    if count == 0 :
+                        self.lstdate.insert(tk.END,(str(year)+"/"+str(month)+"/"+str(int(s._selection[0]))+"\n")) 
+                    else:
+                        self.window.lower(belowThis=None)
+                        (tkmessage.showinfo(title="日期重複", message="此日期已選擇"))
+                        self.window.wm_attributes('-topmost',1)
+                        meeting_name.set(name)
+                        self.text.set(date)
 
             def _main_judge(s):
                 try:
@@ -366,33 +384,83 @@ class Page1:
                     return False
 
         cal = Calendar()
+    def cancel(self):
+        name = ""
+        date = ""
+        if self.inputname != "":
+            name = self.inputname.get()
+        if len(self.lstdate.get(0,"end")) != 0:
+            date = self.lstdate.get(0,"end")
+        if len(self.lstdate.curselection()) == 0:  # 如果沒有選取listbox
+            self.window.lower(belowThis=None)
+            (tkmessage.showinfo(title="請選擇日期", message="請選擇欲取消日期"))
+            self.window.wm_attributes('-topmost',1)
+            meeting_name.set(name)
+            self.text.set(date)
+               
+        else:
+            delete_list = []
+            for i in range(len(self.lstdate.curselection())):
+                delete_list.append(self.lstdate.curselection()[i])
+            for j in range(len(delete_list)):
+                self.lstdate.delete(delete_list[j]-j)
 
     def click_btnYes(self):
-        self.window.destroy()
+        date = ""
+        if self.inputname != "":
+            name = self.inputname.get()
+        if str(self.lstdate.get(0,"end")) != "( )":
+            compare_list = self.lstdate.get(0,"end")
+            date = self.lstdate.get(0,"end")
+            
+        if self.inputname.get() == "" or len(self.lstdate.get(0,"end")) == 0:
+            if self.inputname.get() == "" and len(self.lstdate.get(0,"end")) != 0:
+                self.window.lower(belowThis=None)
+                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議名稱"))
+                self.window.wm_attributes('-topmost',1)
+                meeting_name.set(name)
+                self.text.set(date)
+            elif len(self.lstdate.get(0,"end")) == 0 and self.inputname.get() != "":
+                self.window.lower(belowThis=None)
+                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議日期"))
+                self.window.wm_attributes('-topmost',1)
+                meeting_name.set(name)
+                self.text.set(date)
+            elif len(self.lstdate.get(0,"end")) == 0 and self.inputname.get() == "":
+                self.window.lower(belowThis=None)
+                (tkmessage.showinfo(title="輸入未完整", message="您尚未輸入會議名稱及日期"))
+                self.window.wm_attributes('-topmost',1)
+                meeting_name.set(name)
+                self.text.set(date)
+        else:
+            date_list = []
+            date_list.append(self.lstdate.get(0,"end"))
+            self.window.destroy()
+            new_wb = openpyxl.Workbook()
+            ws1 = new_wb.active
+            name = meeting_name.get()
+            ws1.title = name
+            change_date = date_list[0].replace(" ", "").split("\n")
+            
+            
 
-        change_date = date_list[0].replace(" ", "").split("\n")
-        new_wb = openpyxl.Workbook()
-        ws1 = new_wb.active
-        name = meeting_name.get()
-        ws1.title = name
+            for i in range(len(change_date)):
+                ws1.cell(row=1, column=i + 2).value = change_date[i]
 
-        for i in range(len(change_date)):
-            ws1.cell(row=1, column=i + 2).value = change_date[i]
+            new_wb.save('%s.xlsx' % str(name))
 
-        new_wb.save('%s.xlsx' % str(name))
+            global meeting_names, finish_meeting
+            meeting_names.append(meeting_name.get())
+            finish_meeting.append('unfinished')
 
-        global meeting_names, finish_meeting
-        meeting_names.append(meeting_name.get())
-        finish_meeting.append('unfinished')
+            for i in range(len(meeting_names)):
+                sheet_names.cell(row=i + 1, column=1).value = meeting_names[i]
+                sheet_names.cell(row=i + 1, column=2).value = finish_meeting[i]
 
-        for i in range(len(meeting_names)):
-            sheet_names.cell(row=i + 1, column=1).value = meeting_names[i]
-            sheet_names.cell(row=i + 1, column=2).value = finish_meeting[i]
+            names.save('會議名稱.xlsx')
 
-        names.save('會議名稱.xlsx')
-
-        self.page1.destroy()
-        Page1()
+            self.page1.destroy()
+            Page1()
 
     def click_btn_meetings(self, a):
         global name, wb_record, sheet_time, finish_meeting, location
