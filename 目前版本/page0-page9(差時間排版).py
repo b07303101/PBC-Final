@@ -878,19 +878,19 @@ class Page7:
         f2 = tkfont.Font(size=12, family="源泉圓體 M")
         f3 = tkfont.Font(size=15, family="源泉圓體 M")
 
-        self.lab_title = tk.Label(self.page7, width=15, height=1, text=' 出缺勤', font=f1, fg='white', bg=color_1,
+        self.lab_title = tk.Label(self.frame_context, width=15, height=1, text=' 出缺勤', font=f1, fg='white', bg=color_1,
                                   anchor='w').place(x=0, y=50)
 
-        self.btn7_1 = tk.Button(self.page7, text="確定", font=f3, bg=color_3, command=self.click_btn7_1)
+        self.btn7_1 = tk.Button(self.frame_context, text="確定", font=f3, bg=color_3, command=self.click_btn7_1)
         self.btn7_1.place(x=850, y=60, anchor='center')
 
-        self.lab7_1 = tk.Label(self.page7, text="準時", font=f2, bg=color_2).place(x=179, y=125)
-        self.lab7_2 = tk.Label(self.page7, text="遲到", font=f2, bg=color_2).place(x=279, y=125)
-        self.lab7_3 = tk.Label(self.page7, text="未出席", font=f2, bg=color_2).place(x=372, y=125)
+        self.lab7_1 = tk.Label(self.frame_context, text="準時", font=f2, bg=color_2).place(x=179, y=125)
+        self.lab7_2 = tk.Label(self.frame_context, text="遲到", font=f2, bg=color_2).place(x=279, y=125)
+        self.lab7_3 = tk.Label(self.frame_context, text="未出席", font=f2, bg=color_2).place(x=372, y=125)
 
-        self.lab7_4 = tk.Label(self.page7, text="是", font=f2, bg=color_2).place(x=700, y=125)
-        self.lab7_5 = tk.Label(self.page7, text="否", font=f2, bg=color_2).place(x=770, y=125)
-        self.lab7_6 = tk.Label(self.page7, text="無任務", font=f2, bg=color_2).place(x=823, y=125)
+        self.lab7_4 = tk.Label(self.frame_context, text="是", font=f2, bg=color_2).place(x=700, y=125)
+        self.lab7_5 = tk.Label(self.frame_context, text="否", font=f2, bg=color_2).place(x=770, y=125)
+        self.lab7_6 = tk.Label(self.frame_context, text="無任務", font=f2, bg=color_2).place(x=823, y=125)
 
         try:
             sheet = wb_record['出缺勤']
@@ -911,25 +911,28 @@ class Page7:
                 absence.append(var_absence)
             else:
                 var_absence = absence[i]
-            tk.Radiobutton(self.page7, variable=var_absence, value=1, bg=color_2).place(x=185, y=155 + 35 * i)
-            tk.Radiobutton(self.page7, variable=var_absence, value=2, bg=color_2).place(x=285, y=155 + 35 * i)
-            tk.Radiobutton(self.page7, variable=var_absence, value=3, bg=color_2).place(x=385, y=155 + 35 * i)
+            tk.Radiobutton(self.frame_context, variable=var_absence, value=1, bg=color_2).place(x=185, y=155 + 35 * i)
+            tk.Radiobutton(self.frame_context, variable=var_absence, value=2, bg=color_2).place(x=285, y=155 + 35 * i)
+            tk.Radiobutton(self.frame_context, variable=var_absence, value=3, bg=color_2).place(x=385, y=155 + 35 * i)
 
             if len(mission) != len(member_list):
                 var_mission = tk.IntVar()
                 mission.append(var_mission)
             else:
                 var_mission = mission[i]
-            tk.Radiobutton(self.page7, variable=var_mission, value=1, bg=color_2).place(x=700, y=155 + 35 * i)
-            tk.Radiobutton(self.page7, variable=var_mission, value=2, bg=color_2).place(x=770, y=155 + 35 * i)
-            tk.Radiobutton(self.page7, variable=var_mission, value=3, bg=color_2).place(x=840, y=155 + 35 * i)
+            tk.Radiobutton(self.frame_context, variable=var_mission, value=1, bg=color_2).place(x=700, y=155 + 35 * i)
+            tk.Radiobutton(self.frame_context, variable=var_mission, value=2, bg=color_2).place(x=770, y=155 + 35 * i)
+            tk.Radiobutton(self.frame_context, variable=var_mission, value=3, bg=color_2).place(x=840, y=155 + 35 * i)
             canvas_height += 35
 
-        wb_record.save('%s.xlsx' % name)
         if canvas_height > 700:
             self.canvas.configure(scrollregion=(0,0,1000,canvas_height))
         else:
             self.canvas.configure(scrollregion=(0,0,1000,700))
+
+        wb_record.save('%s.xlsx' % name)
+
+        
 
     def click_btn7_1(self):
         sheet = wb_record['出缺勤']
