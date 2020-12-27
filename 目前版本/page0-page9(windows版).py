@@ -49,16 +49,8 @@ class Page1:
         return "#%02x%02x%02x" % rgb
 
     def __init__(self, master=None):
-
-        f1 = tkfont.Font(size=30, family="源泉圓體 B")
-        f2 = tkfont.Font(size=20, family="源泉圓體 M")
-
-        color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
-        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
-        color_3 = self._from_rgb((255, 217, 102))  # 淡橘
-
         self.root = master
-        self.page1 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
+        self.page1 = tk.Frame(self.root, width=1000, height=700, bg=self._from_rgb((208, 224, 227)))
         self.page1.master.title("會議")
         self.page1.grid()
 
@@ -302,7 +294,7 @@ class Page1:
                     x, y, widget = evt.x, evt.y, evt.widget
                     item = widget.identify_row(y)
                     column = widget.identify_column(x)
-                if not column or not item in s._items:  # 在工作日行中單擊或僅在列外單擊。
+                if not column or item not in s._items:  # 在工作日行中單擊或僅在列外單擊。
                     return
                 item_values = widget.item(item)['values']  # 點選的日期該周
                 if not len(item_values):  # 該行是空的。
@@ -379,9 +371,11 @@ class Page1:
                                 self.window.wm_attributes('-topmost', 1)
                             else:
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
                         else:
-                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d"
+                                                                                              % int(s._selection[0]))))
                             date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                     elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
                         if len(date_list) != 0:
@@ -391,11 +385,14 @@ class Page1:
                                 self.window.wm_attributes('-topmost', 1)
                             else:
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
                         else:
-                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                        ("%02d" % int(s._selection[0]))))
                             date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                    elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(str(choose_date)) >= int(str(today_day)):
+                    elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(
+                            str(choose_date)) >= int(str(today_day)):
                         if len(date_list) != 0:
                             if date in date_list:
                                 self.window.lower(belowThis=self.page1)
@@ -403,9 +400,11 @@ class Page1:
                                 self.window.wm_attributes('-topmost', 1)
                             else:
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
                         else:
-                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                        ("%02d" % int(s._selection[0]))))
                             date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                     else:
                         self.window.lower(belowThis=self.page1)
@@ -414,7 +413,7 @@ class Page1:
 
             def _main_judge(s):
                 try:
-                    if self.window.focus_displayof() == None or 'toplevel' not in str(self.window.focus_displayof()):
+                    if self.window.focus_displayof() is None or 'toplevel' not in str(self.window.focus_displayof()):
                         s._exit()
                     else:
                         self.window.after(10, s._main_judge)
