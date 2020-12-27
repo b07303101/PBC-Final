@@ -614,13 +614,13 @@ class Page4:
         chk_btns = []
         dates = []
 
-        self.canvas = tk.Canvas(self.page4, width=414, height=510, bg=color_2)
-        self.canvas.place(x=498, y=80)
+        self.canvas = tk.Canvas(self.page4, width=400, height=510, bg=color_2)
+        self.canvas.place(x=525, y=80)
         self.slb = tk.Scrollbar(self.page4, orient='horizontal')
         self.canvas.configure(xscrollcommand=self.slb.set)
         self.slb.configure(command=self.canvas.xview)
         self.frame_context = tk.Frame(self.canvas, width=10000, height=1000, bg=color_2)
-        self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
+        self.canvas.create_window((0, 0), window=self.frame_context, anchor = 'nw')
 
         self.canvas_width = 2
 
@@ -629,7 +629,7 @@ class Page4:
                 dates.append(str(list(sheet_time.rows)[0][i].value)[5:])
 
         if len(dates) > 7:
-            self.slb.place(x=555, y=600, relwidth=0.362, height=10)
+            self.slb.place(x=590, y=600, relwidth=0.342, height=10)
 
         for i in range(len(dates) + 1):
             if i != 0:
@@ -638,25 +638,23 @@ class Page4:
             for j in range(17):
                 if i == 0:
                     if j == 0:
-                        tk.Label(self.page4, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480,
-                                                                                                                  y=80)
+                        tk.Label(self.page4, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80)
                     else:
                         tk.Label(self.page4, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
                 else:
                     if j == 0:
-                        tk.Label(self.frame_context, text=dates[i - 1], borderwidth=1, relief='solid', width=7,
-                                 height=2,
-                                 bg=color_2, anchor='center').place(x=63 * i, y=0)
+                        tk.Label(self.frame_context, text=dates[i - 1], borderwidth=1, relief='solid', width=7, height=2,
+                                 bg=color_2, anchor = 'center').place(x=63 * i, y=0)
                     else:
                         var_i = tk.IntVar()
-                        tk.Label(self.frame_context, borderwidth=1, relief='solid', width=7, height=2,
-                                 bg=color_2).place(x=63 * i, y=30 * j)
+                        tk.Label(self.frame_context, borderwidth=1, relief='solid', width=7, height=2, bg=color_2).place(x=63 * i, y=30 * j)
                         tk.Checkbutton(self.frame_context, onvalue=1, offvalue=0, variable=var_i,
                                        bg=color_2).place(x=20 + 63 * i, y=5 + 30 * j)
                         chk_btns[i - 1].append(var_i)
 
-        self.canvas.configure(scrollregion=(0, 0, self.canvas_width, 530))
+        self.canvas.configure(scrollregion=(0, 0, self.canvas_width , 530))
+
 
     def click_btn_yes(self):
         if var_name.get() == "":
@@ -812,7 +810,7 @@ class Page5:
 
         for i in range(1, len(list(sheet_time.rows)[0])):
             if str(list(sheet_time.rows)[0][i].value) != 'None':
-                dates.append(str(list(sheet_time.rows)[0][i].value)[5:])
+                dates.append(str(list(sheet_time.rows)[0][i].value).replace("2020/", ""))
 
         for i in range(how_many_people):
             self.lst_color.insert('end', i + 1)
@@ -820,15 +818,15 @@ class Page5:
             color_list.append(self.color)
             self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)
 
-        self.canvas = tk.Canvas(self.page5, width=414, height=510, bg=color_2)
-        self.canvas.place(x=498, y=80)
+        self.canvas = tk.Canvas(self.page5, width=400, height=510, bg=color_2)
+        self.canvas.place(x=525, y=80)
         self.slb = tk.Scrollbar(self.page5, orient='horizontal')
         if len(dates) > 7:
-            self.slb.place(x=555, y=600, relwidth=0.362, height=10)
+            self.slb.place(x=590, y=600, relwidth=0.342, height=10)
         self.canvas.configure(xscrollcommand=self.slb.set)
         self.slb.configure(command=self.canvas.xview)
         self.frame_context = tk.Frame(self.canvas, width=10000, height=1000, bg=color_2)
-        self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
+        self.canvas.create_window((0, 0), window=self.frame_context, anchor = 'nw')
 
         self.canvas_width = 2
 
@@ -840,32 +838,27 @@ class Page5:
             for j in range(17):
                 if i == 0:
                     if j == 0:
-                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480,
-                                                                                                                  y=80)
+                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80)
                     else:
-                        tk.Label(self.page5, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
-                                 borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
+                        tk.Label(self.page5, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
                 else:
                     if j == 0:
-                        tk.Label(self.frame_context, text=dates[i - 1], borderwidth=1, relief='solid', width=7,
-                                 height=2, bg=color_2, anchor='center').place(x=63 * i, y=0)
+                        tk.Label(self.frame_context, text=dates[i - 1], borderwidth=1, relief='solid', width=7, height=2,bg=color_2, anchor = 'center').place(x=63 * i, y=0)
                     else:
                         tk.Label(self.frame_context, relief='solid', borderwidth=1, width=7, height=2,
-                                 bg=color_2).place(x=63 * i, y=30 * j)
+                             bg=color_2).place(x=63 * i, y=30 * j)
                         how_many_available = len(str(sheet_time.cell(row=j + 1, column=i + 1).value).split(','))
                         if str(sheet_time.cell(row=j + 1, column=i + 1).value) == 'None':
                             how_many_available = 0
                         if how_many_available != 0:
-                            self.btn = tk.Button(self.frame_context, bg=str(color_list[how_many_available - 1]),
-                                                 width=5, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
+                            self.btn = tk.Button(self.frame_context, bg=str(color_list[how_many_available - 1]), width=5, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
                         else:
-                            self.btn = tk.Button(self.frame_context, bg='white', width=5, height=1,
-                                                 command=lambda a=i, b=j: self.click_btn(a, b))
-                        self.btn.place(x=6 + 63 * i, y=5 + 30 * j)
+                            self.btn = tk.Button(self.frame_context, bg='white', width=5, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
+                        self.btn.place(x=6+63 * i, y=5+30 * j)
                         people_list[i - 1].append(how_many_available)
                         btn_list[i - 1].append(self.btn)
 
-        self.canvas.configure(scrollregion=(0, 0, self.canvas_width, 530))
+        self.canvas.configure(scrollregion=(0, 0, self.canvas_width , 530))
 
         self.scroll_available.config(command=self.lst_available.yview)
         self.scroll_unavailable.config(command=self.lst_unavailable.yview)
@@ -921,7 +914,7 @@ class Page5:
         self.lst_available.delete(0, "end")
         self.lst_unavailable.delete(0, "end")
 
-        all_members = str(sheet_time.cell(row=2, column=10).value).split(',')
+        all_members = str(sheet_time.cell(row=18, column=1).value).split(',')
         available_member = str(sheet_time.cell(row=b + 1, column=a + 1).value).split(',')
 
         for member in available_member:
@@ -930,7 +923,6 @@ class Page5:
         for member in all_members:
             if member not in available_member:
                 self.lst_unavailable.insert("end", member)
-
 
 class Page6:
     def _from_rgb(self, rgb):

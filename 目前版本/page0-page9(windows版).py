@@ -629,7 +629,7 @@ class Page4:
                 dates.append(str(list(sheet_time.rows)[0][i].value)[5:])
 
         if len(dates) > 7:
-            self.slb.place(x=555, y=600, relwidth=0.362, height=10)
+            self.slb.place(x=555, y=595, relwidth=0.362, height=10)
 
         for i in range(len(dates) + 1):
             if i != 0:
@@ -824,7 +824,7 @@ class Page5:
         self.canvas.place(x=498, y=80)
         self.slb = tk.Scrollbar(self.page5, orient='horizontal')
         if len(dates) > 7:
-            self.slb.place(x=555, y=600, relwidth=0.362, height=10)
+            self.slb.place(x=555, y=595, relwidth=0.362, height=10)
         self.canvas.configure(xscrollcommand=self.slb.set)
         self.slb.configure(command=self.canvas.xview)
         self.frame_context = tk.Frame(self.canvas, width=10000, height=1000, bg=color_2)
@@ -921,7 +921,7 @@ class Page5:
         self.lst_available.delete(0, "end")
         self.lst_unavailable.delete(0, "end")
 
-        all_members = str(sheet_time.cell(row=2, column=10).value).split(',')
+        all_members = str(sheet_time.cell(row=18, column=1).value).split(',')
         available_member = str(sheet_time.cell(row=b + 1, column=a + 1).value).split(',')
 
         for member in available_member:
