@@ -10,10 +10,8 @@ colors = ['red4', 'firebrick4', 'firebrick3', 'red2', 'red', 'firebrick1', 'Oran
           'green yellow', 'lawn green', 'chartreuse2', 'lime green', 'green3', 'SpringGreen3', 'SeaGreen3',
           'medium sea green', 'springGreen4', 'sea green', 'forest green', 'green4', 'dark green']
 
-
 absence = []
 mission = []
-
 
 root = tk.Tk()
 
@@ -51,44 +49,42 @@ class Page1:
         return "#%02x%02x%02x" % rgb
 
     def __init__(self, master=None):
-        
+
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
-        
+
         color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
         color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
         color_3 = self._from_rgb((255, 217, 102))  # 淡橘
-        
+
         self.root = master
         self.page1 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
         self.page1.master.title("會議")
         self.page1.grid()
-        # self.count_meetings = 0
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
-        
+
         color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
         color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
         color_3 = self._from_rgb((255, 217, 102))  # 淡橘
-        
-         # 加scrollbar
+
+        # 加scrollbar
         self.canvas1 = tk.Canvas(self.page1, width=1000, height=700, bg=color_2)
-        self.canvas1.grid()
+        self.canvas1.place(x=0, y=0)
         self.slb1 = tk.Scrollbar(self.page1, orient='vertical')
         self.slb1.place(x=980, width=20, height=700)
         self.canvas1.configure(yscrollcommand=self.slb1.set)
         self.slb1.configure(command=self.canvas1.yview)
-        self.frame_context1 = tk.Frame(self.canvas1, width=2000, height=100000 * 1000000, bg=color_2)
+        self.frame_context1 = tk.Frame(self.canvas1, width=1000, height=10000, bg=color_2)
         self.canvas1.create_window((0, 0), window=self.frame_context1, anchor='nw')
-        
-        canvas_height_p1 = 440
-        
-            
-        self.lblTitle_A = tk.Label(self.canvas1, text=" 會議", height=1, width=15, font=f1,
-                                   bg=self._from_rgb((68, 84, 106)), fg='white', anchor='w')
-        self.btnCreate_New = tk.Button(self.canvas1, text="創建新會議", height=1, width=10, font=f2,
-                                       bg=self._from_rgb((255, 217, 102)), fg='black', command=self.click_btnCreate_New)
+
+        self.canvas_height_p1 = 200
+
+        self.lblTitle_A = tk.Label(self.frame_context1, text=" 會議", height=1, width=15, font=f1,
+                                   bg=color_1, fg='white', anchor='w')
+        self.btnCreate_New = tk.Button(self.frame_context1, text="創建新會議", height=1, width=10, font=f2,
+                                       bg=color_3, fg='black', command=self.click_btnCreate_New)
 
         self.lblTitle_A.place(x=0, y=50)
         self.btnCreate_New.place(x=780, y=50)
@@ -110,21 +106,22 @@ class Page1:
             pass
 
         for i in range(len(meeting_names)):
-            self.btn_names = tk.Button(self.canvas1, text=meeting_names[i], height=2, width=10, relief='solid', font=f1,
+            self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10, relief='solid',
+                                       font=f1,
                                        bg='white', command=lambda a=i: self.click_btn_meetings(a))
             self.btn_names.place(x=44 + 325 * (i % 3), y=150 + 150 * (i // 3))
-            
-            if i%3 == 0:
-                canvas_height_p1 += 150
-                
+
+            if i % 3 == 0:
+                self.canvas_height_p1 += 150
+
             if finish_meeting[i] == 'finished':
                 self.btn_names.config(fg='light grey')
-       
-        if canvas_height_p1 > 700:
-            self.canvas1.configure(scrollregion=(0, 0, 1000, canvas_height_p1 + 30))
+
+        if self.canvas_height_p1 > 700:
+            self.canvas1.configure(scrollregion=(0, 0, 1000, self.canvas_height_p1))
         else:
             self.canvas1.configure(scrollregion=(0, 0, 1000, 700))
-    
+
     def click_btnCreate_New(self):
         self.create_window()
 
@@ -163,6 +160,7 @@ class Page1:
         self.btnYes = tk.Button(self.window, text="確認", height=1, width=5, bg=self._from_rgb((255, 217, 102)), font=f2,
                                 command=self.click_btnYes)
         self.btn_delete = tk.Button(self.window, text="刪除日期", font=f3, command=self.click_btn_delete)
+        self.scroll_dates = tk.Scrollbar(self.window, command=self.enydate.yview)
 
         self.lblTitle_B.place(x=0, y=25)
         self.lblname.place(x=70, y=75)
@@ -171,6 +169,9 @@ class Page1:
         self.inputname.place(x=190, y=75)
         self.btnYes.place(relx=0.5, y=380, anchor='center')
         self.btn_delete.place(x=130, y=320)
+        self.scroll_dates.place(x=232, y=142, relheight=0.403)
+
+        self.enydate.config(yscrollcommand=self.scroll_dates.set)
 
         datetime = calendar.datetime.datetime  # 日期和時間結合(從這邊複製)
         timedelta = calendar.datetime.timedelta  # 時間差
@@ -214,7 +215,7 @@ class Page1:
             def __setup_styles(s):  # 自定義TTK風格
                 style = ttk.Style(self.window)
                 arrow_layout = lambda dir: (
-                [('Button.focus', {'children': [('Button.%sarrow' % dir, None)]})])  # 返回參數性質
+                    [('Button.focus', {'children': [('Button.%sarrow' % dir, None)]})])  # 返回參數性質
                 style.layout('L.TButton', arrow_layout('left'))  # 製作點選上個月的箭頭
                 style.layout('R.TButton', arrow_layout('right'))  # 製作點選下個月的箭頭
 
@@ -365,25 +366,51 @@ class Page1:
                 else:
                     year = s._date.year
                     month = s._date.month
+                    choose_date = s._selection[0]
+                    today_year = datetime.now().year
+                    today_month = datetime.now().month
+                    today_day = datetime.now().day
                     date = str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))
-
-                    if len(date_list) != 0:
-                        if date in date_list:
-                            self.window.lower(belowThis=self.page1)
-                            tkmessage.showerror(title="日期重複", message="此日期已選擇")
-                            self.window.wm_attributes('-topmost', 1)
-                        else:
-                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                            if len(date_list) > 7:
-                                del date_list[7]
+                    if int(str(year)) > int(str(today_year)):
+                        if len(date_list) != 0:
+                            if date in date_list:
                                 self.window.lower(belowThis=self.page1)
-                                tkmessage.showerror(title="日期數量超出範圍", message="至多只能選擇7個日期！")
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                                 self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                        else:
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                    elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
+                        if len(date_list) != 0:
+                            if date in date_list:
+                                self.window.lower(belowThis=self.page1)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                        else:
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                    elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(str(choose_date)) >= int(str(today_day)):
+                        if len(date_list) != 0:
+                            if date in date_list:
+                                self.window.lower(belowThis=self.page1)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                        else:
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
+                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                     else:
-                        self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))))
-                        date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                        self.window.lower(belowThis=self.page1)
+                        tkmessage.showerror(title="日期無效", message="請選擇有效日期")
+                        self.window.wm_attributes('-topmost', 1)
 
             def _main_judge(s):
                 try:
@@ -587,13 +614,27 @@ class Page4:
         chk_btns = []
         dates = []
 
+        self.canvas = tk.Canvas(self.page4, width=414, height=510, bg=color_2)
+        self.canvas.place(x=498, y=80)
+        self.slb = tk.Scrollbar(self.page4, orient='horizontal')
+        self.canvas.configure(xscrollcommand=self.slb.set)
+        self.slb.configure(command=self.canvas.xview)
+        self.frame_context = tk.Frame(self.canvas, width=10000, height=1000, bg=color_2)
+        self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
+
+        self.canvas_width = 2
+
         for i in range(1, len(list(sheet_time.rows)[0])):
             if str(list(sheet_time.rows)[0][i].value) != 'None':
                 dates.append(str(list(sheet_time.rows)[0][i].value)[5:])
 
+        if len(dates) > 7:
+            self.slb.place(x=555, y=600, relwidth=0.362, height=10)
+
         for i in range(len(dates) + 1):
             if i != 0:
                 chk_btns.append([])
+            self.canvas_width += 52
             for j in range(17):
                 if i == 0:
                     if j == 0:
@@ -603,16 +644,19 @@ class Page4:
                         tk.Label(self.page4, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
                 else:
-                    tk.Label(self.page4, relief='solid', borderwidth=1, width=7, height=2,
-                             bg=color_2).place(x=501 + 52 * i, y=80 + 30 * j)
                     if j == 0:
-                        tk.Label(self.page4, text=dates[i - 1], relief='solid', borderwidth=1, width=7, height=2,
-                                 bg=color_2).place(x=501 + 52 * i, y=80)
+                        tk.Label(self.frame_context, text=dates[i - 1], borderwidth=1, relief='solid', width=7,
+                                 height=2,
+                                 bg=color_2, anchor='center').place(x=52 * i, y=0)
                     else:
                         var_i = tk.IntVar()
-                        tk.Checkbutton(self.page4, onvalue=1, offvalue=0, variable=var_i,
-                                       bg=color_2).place(x=518 + 52 * i, y=85 + 30 * j)
+                        tk.Label(self.frame_context, borderwidth=1, relief='solid', width=7, height=2,
+                                 bg=color_2).place(x=52 * i, y=30 * j)
+                        tk.Checkbutton(self.frame_context, onvalue=1, offvalue=0, variable=var_i,
+                                       bg=color_2).place(x=17 + 52 * i, y=5 + 30 * j)
                         chk_btns[i - 1].append(var_i)
+
+        self.canvas.configure(scrollregion=(0, 0, self.canvas_width, 530))
 
     def click_btn_yes(self):
         if var_name.get() == "":
@@ -763,6 +807,7 @@ class Page5:
         color_list = []
         people_list = []
         btn_list = []
+
         dates = []
 
         for i in range(1, len(list(sheet_time.rows)[0])):
@@ -775,10 +820,23 @@ class Page5:
             color_list.append(self.color)
             self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)
 
+        self.canvas = tk.Canvas(self.page5, width=414, height=510, bg=color_2)
+        self.canvas.place(x=498, y=80)
+        self.slb = tk.Scrollbar(self.page5, orient='horizontal')
+        if len(dates) > 7:
+            self.slb.place(x=555, y=600, relwidth=0.362, height=10)
+        self.canvas.configure(xscrollcommand=self.slb.set)
+        self.slb.configure(command=self.canvas.xview)
+        self.frame_context = tk.Frame(self.canvas, width=10000, height=1000, bg=color_2)
+        self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
+
+        self.canvas_width = 2
+
         for i in range(len(dates) + 1):
             if i != 0:
                 people_list.append([])
                 btn_list.append([])
+            self.canvas_width += 52
             for j in range(17):
                 if i == 0:
                     if j == 0:
@@ -788,25 +846,26 @@ class Page5:
                         tk.Label(self.page5, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
                 else:
-                    tk.Label(self.page5, relief='solid', borderwidth=1, width=7, height=2,
-                             bg=color_2).place(x=501 +52 * i, y=80 + 30 * j)
-
                     if j == 0:
-                        tk.Label(self.page5, text=dates[i - 1], relief='solid', borderwidth=1, width=7, height=2,
-                                 bg=color_2).place(x=501 + 52 * i, y=80)
+                        tk.Label(self.frame_context, text=dates[i - 1], borderwidth=1, relief='solid', width=7,
+                                 height=2, bg=color_2, anchor='center').place(x=52 * i, y=0)
                     else:
+                        tk.Label(self.frame_context, relief='solid', borderwidth=1, width=7, height=2,
+                                 bg=color_2).place(x=52 * i, y=30 * j)
                         how_many_available = len(str(sheet_time.cell(row=j + 1, column=i + 1).value).split(','))
                         if str(sheet_time.cell(row=j + 1, column=i + 1).value) == 'None':
                             how_many_available = 0
                         if how_many_available != 0:
-                            self.btn = tk.Button(self.page5, bg=str(color_list[how_many_available - 1]), width=6,
-                                                 height=1, command=lambda a=i, b=j: self.click_btn(a, b))
+                            self.btn = tk.Button(self.frame_context, bg=str(color_list[how_many_available - 1]),
+                                                 width=5, height=1, command=lambda a=i, b=j: self.click_btn(a, b))
                         else:
-                            self.btn = tk.Button(self.page5, bg='white', width=6, height=1,
+                            self.btn = tk.Button(self.frame_context, bg='white', width=5, height=1,
                                                  command=lambda a=i, b=j: self.click_btn(a, b))
-                        self.btn.place(x=502 + 52 * i, y=83 + 30 * j)
+                        self.btn.place(x=4 + 52 * i, y=3 + 30 * j)
                         people_list[i - 1].append(how_many_available)
                         btn_list[i - 1].append(self.btn)
+
+        self.canvas.configure(scrollregion=(0, 0, self.canvas_width, 530))
 
         self.scroll_available.config(command=self.lst_available.yview)
         self.scroll_unavailable.config(command=self.lst_unavailable.yview)
@@ -832,7 +891,15 @@ class Page5:
                             btn_list[i][j].config(bg=str(color_list[int(number_choose[k]) - 1]))
 
     def click_btn_reset(self):
-        self.lst_color.select_clear(first=0, last="end")
+        number_choose = list()
+        number_choose_tuple = self.lst_color.curselection()
+        for i in number_choose_tuple:
+            number_choose.append(int(self.lst_color.get(i)))
+
+        for k in number_choose:
+            self.lst_color.delete(k - 1)
+            self.lst_color.insert(k - 1, k)
+            self.lst_color.itemconfig(k - 1, bg=color_list[k - 1])
 
         for i in range(1, len(dates) + 1):
             for j in range(1, 17):
@@ -1094,12 +1161,12 @@ class Page9:
         self.page9.grid()
 
         self.canvas9 = tk.Canvas(self.page9, width=1000, height=700, bg=color_2)
-        self.canvas9.grid()
+        self.canvas9.place(x=0, y=0)
         self.slb9 = tk.Scrollbar(self.page9, orient='vertical')
         self.slb9.place(x=980, width=20, height=700)
         self.canvas9.configure(yscrollcommand=self.slb9.set)
         self.slb9.configure(command=self.canvas9.yview)
-        self.frame_context9 = tk.Frame(self.canvas9, width=2000, height=100000 * 1000000, bg=color_2)
+        self.frame_context9 = tk.Frame(self.canvas9, width=2000, height=10000, bg=color_2)
         self.canvas9.create_window((0, 0), window=self.frame_context9, anchor='nw')
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -1109,17 +1176,16 @@ class Page9:
         ws_1 = wb_record['Meeting record']
         ws_2 = wb_record['出缺勤']
 
-        self.lbl_title9 = tk.Label(self.frame_context9, text=' 會議已結束', height=1, width=10, font=f1, fg='white',
+        self.lbl_title9 = tk.Label(self.frame_context9, text=' 會議已結束', height=1, width=15, font=f1, fg='white',
                                    bg=color_1, anchor='w').place(x=0, y=50)
-        self.lbl9_1 = tk.Label(self.frame_context9, text="會議名稱：", font=f2, bg=color_2)
+        self.lbl9_1 = tk.Label(self.frame_context9, text="會議名稱：", font=f2, bg=color_2, fg=color_1)
         self.lbl9_2 = tk.Label(self.frame_context9, text=name, font=f2, bg=color_2)
-        self.lbl9_3 = tk.Label(self.frame_context9, text="會議時間：", font=f2, bg=color_2)
+        self.lbl9_3 = tk.Label(self.frame_context9, text="會議時間：", font=f2, bg=color_2, fg=color_1)
         self.lbl9_4 = tk.Label(self.frame_context9, text=str(ws_1.cell(row=1, column=2).value), font=f2, bg=color_2)
-        self.lbl9_5 = tk.Label(self.frame_context9, text="會議記錄：", font=f2, bg=color_2)
-        # self.lbl9_6 = tk.Label(self.frame_context9, text=str(ws_1.cell(row=1, column=1).value), font=f2, bg=color_2)
-        self.lbl9_7 = tk.Label(self.frame_context9, text="成員名單", font=f2, bg=color_2)
-        self.lbl9_9 = tk.Label(self.frame_context9, text="出缺勤", font=f2, bg=color_2)
-        self.lbl9_11 = tk.Label(self.frame_context9, text="是否完成指派任務？", font=f2, bg=color_2)
+        self.lbl9_5 = tk.Label(self.frame_context9, text="會議記錄：", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_7 = tk.Label(self.frame_context9, text="成員名單", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_9 = tk.Label(self.frame_context9, text="出缺勤", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_11 = tk.Label(self.frame_context9, text="是否完成指派任務？", font=f2, bg=color_2, fg=color_1)
         self.btn9 = tk.Button(self.frame_context9, text="確定", font=f3, bg=color_3, command=self.click_btn9_1)
 
         self.lbl9_1.place(x=100, y=130)
@@ -1127,17 +1193,16 @@ class Page9:
         self.lbl9_3.place(x=100, y=180)
         self.lbl9_4.place(x=180, y=180)
         self.lbl9_5.place(x=100, y=230)
-        # self.lbl9_6.place(x=180, y=230)
-        self.lbl9_7.place(x=100, y=435)
-        self.lbl9_9.place(x=300, y=435)
-        self.lbl9_11.place(x=600, y=435)
+        self.lbl9_7.place(x=100, y=480)
+        self.lbl9_9.place(x=300, y=480)
+        self.lbl9_11.place(x=600, y=480)
         self.btn9.place(x=850, y=75, anchor='center')
 
         #  將會議記錄變成listbox配合scrollbar查閱
         self.scroll_meeting_record = tk.Scrollbar(self.frame_context9)
-        self.scroll_meeting_record.place(x=850, y=260, relheight=0.08)
+        self.scroll_meeting_record.place(x=824, y=261, relheight=0.0193)
         var_meeting_record = tk.StringVar()
-        self.lst_meeting_record = tk.Listbox(self.frame_context9, listvariable=var_meeting_record, font=f2, width=90,
+        self.lst_meeting_record = tk.Listbox(self.frame_context9, listvariable=var_meeting_record, font=f2, width=80,
                                              height=10, yscrollcommand=self.scroll_meeting_record.set)
         self.lst_meeting_record.place(x=100, y=260)
         for record9 in str(ws_1.cell(row=1, column=1).value).split('\n'):
@@ -1147,18 +1212,18 @@ class Page9:
 
         times = wb_record[name]
         member_list = str(times.cell(row=18, column=1).value).split(',')
-        canvas_height_p9 = 440
+        self.canvas_height_p9 = 440
         for i in range(len(member_list)):
             self.lbl9_8 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=1).value), font=f2,
-                                   bg=color_2).place(x=100, y=480 + 40 * i)
+                                   bg=color_2).place(x=100, y=520 + 40 * i)
             self.lbl9_10 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=2).value), font=f2,
-                                    bg=color_2).place(x=300, y=480 + 40 * i)
+                                    bg=color_2).place(x=300, y=520 + 40 * i)
             self.lbl9_12 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=3).value), font=f2,
-                                    bg=color_2).place(x=600, y=480 + 40 * i)
-            canvas_height_p9 += 40
+                                    bg=color_2).place(x=600, y=520 + 40 * i)
+            self.canvas_height_p9 += 50
 
-        if canvas_height_p9 > 700:
-            self.canvas9.configure(scrollregion=(0, 0, 1000, canvas_height_p9 + 50))
+        if self.canvas_height_p9 > 700:
+            self.canvas9.configure(scrollregion=(0, 0, 1000, self.canvas_height_p9 + 50))
         else:
             self.canvas9.configure(scrollregion=(0, 0, 1000, 700))
 
