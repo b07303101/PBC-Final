@@ -526,7 +526,7 @@ class Page3:
 
         self.root = master
         self.page3 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page3.master.title("Page3")
+        self.page3.master.title(name)
         self.page3.grid()
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -577,7 +577,7 @@ class Page4:
 
         self.root = master
         self.page4 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page4.master.title("Page4")
+        self.page4.master.title("新增你的時間")
         self.page4.grid()
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -737,7 +737,7 @@ class Page5:
 
         self.root = master
         self.page5 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page5.master.title("Page5")
+        self.page5.master.title("查看所有人的時間")
         self.page5.grid()
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -806,7 +806,6 @@ class Page5:
         color_list = []
         people_list = []
         btn_list = []
-
         dates = []
 
         for i in range(1, len(list(sheet_time.rows)[0])):
@@ -839,8 +838,7 @@ class Page5:
             for j in range(17):
                 if i == 0:
                     if j == 0:
-                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480,
-                                                                                                                  y=80)
+                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80)
                     else:
                         tk.Label(self.page5, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
@@ -942,7 +940,7 @@ class Page6:
 
         self.root = master
         self.page6 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page6.master.title("Page6")
+        self.page6.master.title(name + '-紀錄')
         self.page6.grid()
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -999,7 +997,7 @@ class Page7:
 
         self.root = master
         self.page7 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page7.master.title("Page8")
+        self.page7.master.title("出缺勤")
         self.page7.grid()
         # 因為scrollbar不能直接應用在frame上，所以就創了一個canvas，在canvas上加scrollbar，然後再把canvas放進frame
         self.canvas = tk.Canvas(self.page7, width=1000, height=700, bg=color_2)
@@ -1104,7 +1102,7 @@ class Page8:
 
         self.root = master
         self.page8 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page8.master.title("Page8")
+        self.page8.master.title("會議記錄")
         self.page8.grid()
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -1156,7 +1154,7 @@ class Page9:
 
         self.root = master
         self.page9 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page9.master.title("Page9")
+        self.page9.master.title("會議已結束")
         self.page9.grid()
 
         self.canvas9 = tk.Canvas(self.page9, width=1000, height=700, bg=color_2)
