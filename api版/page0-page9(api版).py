@@ -481,6 +481,11 @@ class Page1:
                 ws1.title = '時間統計'
 
                 new_wb.share('arial5623@gmail.com', role='writer', type='user')
+                new_wb.share('alice0911496698@gmail.com', role='writer', type='user')
+                new_wb.share('sunnyliu891114@gmail.com', role='writer', type='user')
+                new_wb.share('jenny900707@gmail.com', role='writer', type='user')
+                new_wb.share('teresa890101@gmail.com', role='writer', type='user')
+                new_wb.share('l1849261495@gmail.com', role='writer', type='user')
 
                 global date_list
                 date_list = sorted(date_list)
