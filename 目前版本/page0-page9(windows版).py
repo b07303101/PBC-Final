@@ -4,6 +4,10 @@ import tkinter.messagebox as tkmessage
 import openpyxl
 import calendar
 from tkinter import ttk
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# plt.rcParams['font.sans-serif']=['Heiti TC']  # mac版需要另外設置圓餅圖的字體才能顯現中文字，不確定Windows需不需要
 
 colors = ['red4', 'firebrick4', 'firebrick3', 'red2', 'red', 'firebrick1', 'OrangeRed2', 'tomato2', 'tomato',
           'chocolate1', 'dark orange', 'orange', 'goldenrod1', 'gold', 'yellow', 'DarkOliveGreen1', 'OliveDrab1',
@@ -1172,6 +1176,43 @@ class Page9:
 
         ws_1 = wb_record['Meeting record']
         ws_2 = wb_record['出缺勤']
+        times = wb_record[name]
+        member_list = str(times.cell(row=18, column=1).value).split(',')
+        ontime_num = 0
+        late_num = 0
+        absence_num = 0
+        ontime_member = []
+        late_member = []
+        absence_member = []
+
+        for i in range(len(member_list)):
+            if ws_2.cell(row=i + 1, column=2).value == "準時":
+                ontime_num += 1
+                ontime_member.append(str(ws_2.cell(row=i + 1, column=1).value))
+            if ws_2.cell(row=i + 1, column=2).value == "遲到":
+                late_num += 1
+                late_member.append(str(ws_2.cell(row=i + 1, column=1).value))
+            if ws_2.cell(row=i + 1, column=2).value == "未出席":
+                absence_num += 1
+                absence_member.append(str(ws_2.cell(row=i + 1, column=1).value))
+
+        done_num = 0
+        undone_num = 0
+        none_num = 0
+        done_member = []
+        undone_member = []
+        none_member = []
+
+        for i in range(len(member_list)):
+            if ws_2.cell(row=i + 1, column=3).value == "完成任務":
+                done_num += 1
+                done_member.append(str(ws_2.cell(row=i + 1, column=1).value))
+            if ws_2.cell(row=i + 1, column=3).value == "未完成任務":
+                undone_num += 1
+                undone_member.append(str(ws_2.cell(row=i + 1, column=1).value))
+            if ws_2.cell(row=i + 1, column=3).value == "無任務":
+                none_num += 1
+                none_member.append(str(ws_2.cell(row=i + 1, column=1).value))
 
         self.lbl_title9 = tk.Label(self.frame_context9, text=' 會議已結束', height=1, width=15, font=f1, fg='white',
                                    bg=color_1, anchor='w').place(x=0, y=50)
@@ -1180,9 +1221,12 @@ class Page9:
         self.lbl9_3 = tk.Label(self.frame_context9, text="會議時間：", font=f2, bg=color_2, fg=color_1)
         self.lbl9_4 = tk.Label(self.frame_context9, text=str(ws_1.cell(row=1, column=2).value), font=f2, bg=color_2)
         self.lbl9_5 = tk.Label(self.frame_context9, text="會議記錄：", font=f2, bg=color_2, fg=color_1)
-        self.lbl9_7 = tk.Label(self.frame_context9, text="成員名單", font=f2, bg=color_2, fg=color_1)
-        self.lbl9_9 = tk.Label(self.frame_context9, text="出缺勤", font=f2, bg=color_2, fg=color_1)
-        self.lbl9_11 = tk.Label(self.frame_context9, text="是否完成指派任務？", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_6 = tk.Label(self.frame_context9, text="準時", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_7 = tk.Label(self.frame_context9, text="遲到", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_8 = tk.Label(self.frame_context9, text="未出席", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_9 = tk.Label(self.frame_context9, text="完成任務", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_10 = tk.Label(self.frame_context9, text="未完成任務", font=f2, bg=color_2, fg=color_1)
+        self.lbl9_11 = tk.Label(self.frame_context9, text="無任務", font=f2, bg=color_2, fg=color_1)
         self.btn9 = tk.Button(self.frame_context9, text="確定", font=f3, bg=color_3, command=self.click_btn9_1)
 
         self.lbl9_1.place(x=100, y=130)
@@ -1190,9 +1234,12 @@ class Page9:
         self.lbl9_3.place(x=100, y=180)
         self.lbl9_4.place(x=180, y=180)
         self.lbl9_5.place(x=100, y=230)
-        self.lbl9_7.place(x=100, y=480)
-        self.lbl9_9.place(x=300, y=480)
-        self.lbl9_11.place(x=600, y=480)
+        self.lbl9_6.place(x=420, y=450)
+        self.lbl9_7.place(x=540, y=450)
+        self.lbl9_8.place(x=650, y=450)
+        self.lbl9_9.place(x=410, y=690)
+        self.lbl9_10.place(x=525, y=690)
+        self.lbl9_11.place(x=650, y=690)
         self.btn9.place(x=850, y=75, anchor='center')
 
         #  將會議記錄變成listbox配合scrollbar查閱
@@ -1207,23 +1254,128 @@ class Page9:
         self.lst_meeting_record.config(yscrollcommand=self.scroll_meeting_record.set)
         self.scroll_meeting_record.config(command=self.lst_meeting_record.yview)
 
-        times = wb_record[name]
-        member_list = str(times.cell(row=18, column=1).value).split(',')
-        self.canvas_height_p9 = 440
-        for i in range(len(member_list)):
-            self.lbl9_8 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=1).value), font=f2,
-                                   bg=color_2).place(x=100, y=520 + 40 * i)
-            self.lbl9_10 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=2).value), font=f2,
-                                    bg=color_2).place(x=300, y=520 + 40 * i)
-            self.lbl9_12 = tk.Label(self.frame_context9, text=str(ws_2.cell(row=i + 1, column=3).value), font=f2,
-                                    bg=color_2).place(x=600, y=520 + 40 * i)
-            self.canvas_height_p9 += 50
+        # 出缺勤名單 準時
+        self.scroll_ontime = tk.Scrollbar(self.frame_context9)
+        self.scroll_ontime.place(x=490, y=481, relheight=0.0193)
+        var_ontime = tk.StringVar()
+        self.lst_ontime = tk.Listbox(self.frame_context9, listvariable=var_ontime, font=f2, width=10,
+                                             height=10, yscrollcommand=self.scroll_ontime.set)
+        self.lst_ontime.place(x=400, y=480)
+        for ontime_member_s in ontime_member:
+            self.lst_ontime.insert("end", ontime_member_s)
+        self.lst_ontime.config(yscrollcommand=self.scroll_ontime.set)
+        self.scroll_ontime.config(command=self.lst_ontime.yview)
 
-        if self.canvas_height_p9 > 700:
-            self.canvas9.configure(scrollregion=(0, 0, 1000, self.canvas_height_p9 + 50))
-        else:
-            self.canvas9.configure(scrollregion=(0, 0, 1000, 700))
+        # 出缺勤名單 遲到
+        self.scroll_late = tk.Scrollbar(self.frame_context9)
+        self.scroll_late.place(x=610, y=481, relheight=0.0193)
+        var_late = tk.StringVar()
+        self.lst_late = tk.Listbox(self.frame_context9, listvariable=var_late, font=f2, width=10,
+                                             height=10, yscrollcommand=self.scroll_late.set)
+        self.lst_late.place(x=520, y=480)
+        for late_member_s in late_member:
+            self.lst_late.insert("end", late_member_s)
+        self.lst_late.config(yscrollcommand=self.scroll_late.set)
+        self.scroll_late.config(command=self.lst_late.yview)
 
+        # 出缺勤名單 未出席
+        self.scroll_absence = tk.Scrollbar(self.frame_context9)
+        self.scroll_absence.place(x=720, y=481, relheight=0.0193)
+        var_absence = tk.StringVar()
+        self.lst_absence = tk.Listbox(self.frame_context9, listvariable=var_absence, font=f2, width=10,
+                                             height=10, yscrollcommand=self.scroll_absence.set)
+        self.lst_absence.place(x=630, y=480)
+        for absence_member_s in absence_member:
+            self.lst_absence.insert("end", absence_member_s)
+        self.lst_absence.config(yscrollcommand=self.scroll_absence.set)
+        self.scroll_absence.config(command=self.lst_absence.yview)
+
+        # 是否完成任務名單 完成任務
+        self.scroll_done = tk.Scrollbar(self.frame_context9)
+        self.scroll_done.place(x=490, y=721, relheight=0.0193)
+        var_done = tk.StringVar()
+        self.lst_done = tk.Listbox(self.frame_context9, listvariable=var_done, font=f2, width=10,
+                                             height=10, yscrollcommand=self.scroll_done.set)
+        self.lst_done.place(x=400, y=720)
+        for done_member_s in done_member:
+            self.lst_done.insert("end", done_member_s)
+        self.lst_done.config(yscrollcommand=self.scroll_done.set)
+        self.scroll_done.config(command=self.lst_done.yview)
+
+        # 是否完成任務名單 未完成任務
+        self.scroll_undone = tk.Scrollbar(self.frame_context9)
+        self.scroll_undone.place(x=610, y=721, relheight=0.0193)
+        var_undone = tk.StringVar()
+        self.lst_undone = tk.Listbox(self.frame_context9, listvariable=var_undone, font=f2, width=10,
+                                             height=10, yscrollcommand=self.scroll_undone.set)
+        self.lst_undone.place(x=520, y=720)
+        for undone_member_s in undone_member:
+            self.lst_undone.insert("end", undone_member_s)
+        self.lst_undone.config(yscrollcommand=self.scroll_undone.set)
+        self.scroll_undone.config(command=self.lst_undone.yview)
+
+        # 是否完成任務名單 無任務
+        self.scroll_none = tk.Scrollbar(self.frame_context9)
+        self.scroll_none.place(x=720, y=721, relheight=0.0193)
+        var_none = tk.StringVar()
+        self.lst_none = tk.Listbox(self.frame_context9, listvariable=var_none, font=f2, width=10,
+                                             height=10, yscrollcommand=self.scroll_none.set)
+        self.lst_none.place(x=630, y=720)
+        for none_member_s in none_member:
+            self.lst_none.insert("end", none_member_s)
+        self.lst_none.config(yscrollcommand=self.scroll_none.set)
+        self.scroll_none.config(command=self.lst_none.yview)
+
+        self.canvas9.configure(scrollregion=(0, 0, 1000, 1000))
+
+        # 出缺勤圓餅圖
+        labels1 = ["準時", "遲到", "未出席"]
+        values1 = [ontime_num, late_num, absence_num]
+
+        if ontime_num == 0:
+            values2.remove(ontime_num)
+            labels2.remove("準時")
+        if late_num == 0:
+            values2.remove(late_num)
+            labels2.remove("遲到")
+        if absence_num == 0:
+            values2.remove(absence_num)
+            labels2.remove("未出席")
+
+        figure1 = plt.figure(figsize=(4.7,4),dpi=60)
+        figure1.set_facecolor(color_2)
+        pie1 = plt.pie(values1, labels=labels1, pctdistance=0.6, autopct = "%1.1f%%")
+        plt.axis('equal')
+        plt.title("出缺勤", {"fontsize" : 15})
+
+        self.canvas1 = FigureCanvasTkAgg(figure1, self.frame_context9)
+        self.canvas1.draw()
+        self.canvas1.get_tk_widget().place(x=90, y=435)
+
+        # 是否完成任務圓餅圖
+        labels2 = ["完成任務", "未完成任務", "無任務"]
+        values2 = [done_num, undone_num, none_num]
+        
+        if done_num == 0:
+            values2.remove(done_num)
+            labels2.remove("完成任務")
+        if undone_num == 0:
+            values2.remove(undone_num)
+            labels2.remove("未完成任務")
+        if none_num == 0:
+            values2.remove(none_num)
+            labels2.remove("無任務")
+
+        figure2 = plt.figure(figsize=(4.7,4),dpi=60)
+        figure2.set_facecolor(color_2)
+        pie2 = plt.pie(values2, labels=labels2, pctdistance=0.6, autopct = "%1.1f%%")
+        plt.axis('equal')
+        plt.title("是否完成指派任務", {"fontsize" : 15})
+
+        self.canvas = FigureCanvasTkAgg(figure2, self.frame_context9)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().place(x=90, y=675)
+        
     def click_btn9_1(self):
         self.page9.destroy()
         Page1()
