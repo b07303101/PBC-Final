@@ -4,10 +4,10 @@ import tkinter.messagebox as tkmessage
 import openpyxl
 import calendar
 from tkinter import ttk
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-# plt.rcParams['font.sans-serif']=['Heiti TC']  # mac版需要另外設置圓餅圖的字體才能顯現中文字，不確定Windows需不需要
+plt.rcParams['font.sans-serif'] = ['GenSenRounded TW']  # windows也要另外設定才能在圓餅圖顯示中文字，我看的網站是下面這個
+# https://daxpowerbi.com/%E5%A6%82%E4%BD%95%E5%9C%A8win-10%E8%A7%A3%E6%B1%BAmatplotlib%E4%B8%AD%E6%96%87%E9%A1%AF%E7%A4%BA%E7%9A%84%E5%95%8F%E9%A1%8C/
 
 colors = ['red4', 'firebrick4', 'firebrick3', 'red2', 'red', 'firebrick1', 'OrangeRed2', 'tomato2', 'tomato',
           'chocolate1', 'dark orange', 'orange', 'goldenrod1', 'gold', 'yellow', 'DarkOliveGreen1', 'OliveDrab1',
@@ -40,7 +40,7 @@ class Page0:
                                   height=1, command=self.click_btnStart)
 
         self.lblCaption.place(relx=0.5, rely=0.5, anchor='center')
-        self.btnStart.place(relx=0.5, y=450, anchor='center')
+        self.btnStart.place(relx=0.5, rely=0.64, anchor='center')
 
     def click_btnStart(self):
         self.page0.destroy()
@@ -67,9 +67,9 @@ class Page1:
 
         # 加scrollbar
         self.canvas1 = tk.Canvas(self.page1, width=1000, height=700, bg=color_2)
-        self.canvas1.place(x=0, y=0)
+        self.canvas1.place(relx=0, rely=0)
         self.slb1 = tk.Scrollbar(self.page1, orient='vertical')
-        self.slb1.place(x=980, width=20, height=700)
+        self.slb1.place(relx=0.98, width=20, height=700)
         self.canvas1.configure(yscrollcommand=self.slb1.set)
         self.slb1.configure(command=self.canvas1.yview)
         self.frame_context1 = tk.Frame(self.canvas1, width=1000, height=10000, bg=color_2)
@@ -81,37 +81,64 @@ class Page1:
                                    bg=color_1, fg='white', anchor='w')
         self.btnCreate_New = tk.Button(self.frame_context1, text="創建新會議", height=1, width=10, font=f2,
                                        bg=color_3, fg='black', command=self.click_btnCreate_New)
+        self.btnCreate_folder = tk.Button(self.frame_context1, text="創建會議群組", height=1, width=12, font=f2,
+                                          bg=color_3, fg='black', command=self.click_btnCreate_folder)
 
-        self.lblTitle_A.place(x=0, y=50)
-        self.btnCreate_New.place(x=780, y=50)
+        self.lblTitle_A.place(relx=0, rely=0.005, anchor='nw')
+        self.btnCreate_New.place(relx=0.78, rely=0.005, anchor='nw')
+        self.btnCreate_folder.place(relx=0.55, rely=0.005, anchor='nw')
 
         global names, sheet_names
         names = openpyxl.load_workbook('會議名稱.xlsx')
         sheet_names = names['會議']
 
-        global meeting_names, finish_meeting
+        global meeting_names, finish_meeting, meeting_or_folder
         meeting_names = []
         finish_meeting = []
+        meeting_or_folder = []
 
         try:
             for cell in list(sheet_names.columns)[0]:
                 meeting_names.append(cell.value)
             for cell in list(sheet_names.columns)[1]:
                 finish_meeting.append(cell.value)
+            for cell in list(sheet_names.columns)[2]:
+                meeting_or_folder.append(cell.value)
         except IndexError:
             pass
 
+        yaxis = 150
+        k = 0
+        l = 0
+
         for i in range(len(meeting_names)):
-            self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10, relief='solid',
-                                       font=f1,
-                                       bg='white', command=lambda a=i: self.click_btn_meetings(a))
-            self.btn_names.place(x=44 + 325 * (i % 3), y=150 + 150 * (i // 3))
+            if meeting_or_folder[i] == 'folder':
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10, relief='solid',
+                                           font=f1, bg='light grey', command=lambda b=i: self.click_btn_folder(b))
+                self.btn_names.place(x=44 + 325 * (k % 3), y=150 + 150 * (k // 3))
+                yaxis = 150 + 150 * (k // 3 + 1)
 
-            if i % 3 == 0:
-                self.canvas_height_p1 += 150
+                if k % 3 == 0:
+                    self.canvas_height_p1 += 150
 
-            if finish_meeting[i] == 'finished':
-                self.btn_names.config(fg='light grey')
+                if finish_meeting[i] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                k += 1
+
+        for i in range(len(meeting_names)):
+            if meeting_or_folder[i] == 'meeting':
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10,
+                                           relief='solid', font=f1, bg='white', command=lambda a=i: self.click_btn_meetings(a))
+                self.btn_names.place(x=44 + 325 * (l % 3), y=yaxis + 150 * (l // 3))
+
+                if l % 3 == 0:
+                    self.canvas_height_p1 += 150
+
+                if finish_meeting[i] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                l += 1
 
         if self.canvas_height_p1 > 700:
             self.canvas1.configure(scrollregion=(0, 0, 1000, self.canvas_height_p1))
@@ -120,6 +147,65 @@ class Page1:
 
     def click_btnCreate_New(self):
         self.create_window()
+
+    def click_btnCreate_folder(self):
+        f1 = tkfont.Font(size=20, family="源泉圓體 B")
+        f2 = tkfont.Font(size=15, family="源泉圓體 M")
+        f3 = tkfont.Font(size=10, family="源泉圓體 M")
+
+        self.window = tk.Toplevel()
+        self.window.geometry('600x420')
+        self.window.resizable(0, 0)
+        self.window.title('群組名稱')
+        self.window.configure(bg=self._from_rgb((208, 224, 227)))
+
+        self.lblTitle_B = tk.Label(self.window, text=" 創建會議群組", height=1, width=15, font=f1,
+                                   bg=self._from_rgb((68, 84, 106)), fg='white', anchor='w')
+        self.lblname = tk.Label(self.window, text="群組名稱：", bg=self._from_rgb((208, 224, 227)), height=1, width=10,
+                                font=f2)
+        self.btnYes = tk.Button(self.window, text="確認", height=1, width=5, bg=self._from_rgb((255, 217, 102)), font=f2,
+                                command=self.click_btnYes_1)
+
+        global folder_name
+
+        folder_name = tk.StringVar()
+        self.inputname = tk.Entry(self.window, textvariable=folder_name, width=30, font=f2)
+
+        self.lblTitle_B.place(x=0, y=25)
+        self.lblname.place(x=120, y=150)
+        self.inputname.place(relx=0.5, y=200, anchor='center')
+        self.btnYes.place(relx=0.5, y=380, anchor='center')
+
+    def click_btnYes_1(self):
+        if self.inputname.get() == "":
+            self.window.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入群組名稱")
+            self.window.wm_attributes('-topmost', 1)
+        else:
+            global meeting_names
+            if self.inputname.get() in meeting_names:
+                self.window.lower(belowThis=None)
+                tkmessage.showerror(title="名稱錯誤", message="此名稱已存在")
+                self.window.wm_attributes('-topmost', 1)
+            else:
+                self.window.destroy()
+                name = folder_name.get()
+                names.create_sheet(name)
+
+                global finish_meeting, meeting_or_folder
+                meeting_names.append(name)
+                finish_meeting.append('unfinished')
+                meeting_or_folder.append('folder')
+
+                for i in range(len(meeting_names)):
+                    sheet_names.cell(row=i + 1, column=1).value = meeting_names[i]
+                    sheet_names.cell(row=i + 1, column=2).value = finish_meeting[i]
+                    sheet_names.cell(row=i + 1, column=3).value = meeting_or_folder[i]
+
+                names.save('會議名稱.xlsx')
+
+                self.page1.destroy()
+                Page1()
 
     def create_window(self):
         global date_list
@@ -473,7 +559,7 @@ class Page1:
             global meeting_names
             if self.inputname.get() in meeting_names:
                 self.window.lower(belowThis=None)
-                tkmessage.showerror(title="會議名稱錯誤", message="此會議名稱已存在")
+                tkmessage.showerror(title="名稱錯誤", message="此名稱已存在")
                 self.window.wm_attributes('-topmost', 1)
             else:
                 self.window.destroy()
@@ -490,13 +576,15 @@ class Page1:
 
                 new_wb.save('%s.xlsx' % str(name))
 
-                global finish_meeting
-                meeting_names.append(meeting_name.get())
+                global finish_meeting, meeting_or_folder
+                meeting_names.append(name)
                 finish_meeting.append('unfinished')
+                meeting_or_folder.append('meeting')
 
                 for i in range(len(meeting_names)):
                     sheet_names.cell(row=i + 1, column=1).value = meeting_names[i]
                     sheet_names.cell(row=i + 1, column=2).value = finish_meeting[i]
+                    sheet_names.cell(row=i + 1, column=3).value = meeting_or_folder[i]
 
                 names.save('會議名稱.xlsx')
 
@@ -516,6 +604,488 @@ class Page1:
             Page9()
         else:
             self.page1.destroy()
+            Page3()
+
+    def click_btn_folder(self, b):
+        global folder_location
+        folder_location = b
+
+        self.page1.destroy()
+        Page2()
+
+
+class Page2:
+    def _from_rgb(self, rgb):
+        return "#%02x%02x%02x" % rgb
+
+    def __init__(self, master=None):
+        color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
+        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
+        color_3 = self._from_rgb((255, 217, 102))  # 淡橘
+
+        self.root = master
+        self.page2 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
+        self.page2.master.title("會議")
+        self.page2.grid()
+
+        f1 = tkfont.Font(size=30, family="源泉圓體 B")
+        f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=15, family="源泉圓體 M")
+
+        # 加scrollbar
+        self.canvas1 = tk.Canvas(self.page2, width=1000, height=700, bg=color_2)
+        self.canvas1.place(relx=0, rely=0)
+        self.slb1 = tk.Scrollbar(self.page2, orient='vertical')
+        self.slb1.place(relx=0.98, width=20, height=700)
+        self.canvas1.configure(yscrollcommand=self.slb1.set)
+        self.slb1.configure(command=self.canvas1.yview)
+        self.frame_context1 = tk.Frame(self.canvas1, width=1000, height=10000, bg=color_2)
+        self.canvas1.create_window((0, 0), window=self.frame_context1, anchor='nw')
+
+        self.canvas_height_p1 = 200
+
+        global meeting_names, folder_location
+        self.lblTitle_A = tk.Label(self.frame_context1, text=" " + meeting_names[folder_location], height=1, width=15,
+                                   font=f1, bg=color_1, fg='white', anchor='w')
+        self.btnCreate_New = tk.Button(self.frame_context1, text="創建新會議", height=1, width=10, font=f2,
+                                       bg=color_3, fg='black', command=self.click_btnCreate_New)
+        self.btn_back = tk.Button(self.page2, text="返回", height=1, font=f3, command=self.click_btn_back, bg=color_3)
+        self.lblTitle_A.place(relx=0, rely=0.005, anchor='nw')
+        self.btnCreate_New.place(relx=0.78, rely=0.005, anchor='nw')
+        self.btn_back.place(x=700, y=65)
+
+        global names, sheet_names, folder_meeting_names, folder_finish_meeting
+        sheet_names = names[meeting_names[folder_location]]
+        folder_meeting_names = []
+        folder_finish_meeting = []
+
+        try:
+            for cell in list(sheet_names.columns)[0]:
+                folder_meeting_names.append(cell.value)
+            for cell in list(sheet_names.columns)[1]:
+                folder_finish_meeting.append(cell.value)
+        except IndexError:
+            pass
+
+        for i in range(len(folder_meeting_names)):
+            self.btn_names = tk.Button(self.frame_context1, text=folder_meeting_names[i], height=2, width=10,
+                                       relief='solid', font=f1, bg='white',
+                                       command=lambda a=i: self.click_btn_meetings(a))
+            self.btn_names.place(x=44 + 325 * (i % 3), y=150 + 150 * (i // 3))
+
+            if i % 3 == 0:
+                self.canvas_height_p1 += 150
+
+            if folder_finish_meeting[i] == 'finished':
+                self.btn_names.config(fg='light grey')
+
+        if self.canvas_height_p1 > 700:
+            self.canvas1.configure(scrollregion=(0, 0, 1000, self.canvas_height_p1))
+        else:
+            self.canvas1.configure(scrollregion=(0, 0, 1000, 700))
+
+    def click_btn_back(self):
+        self.page2.destroy()
+        Page1()
+
+    def click_btnCreate_New(self):
+        self.create_window()
+
+    def create_window(self):
+        global date_list
+        date_list = []
+
+        f1 = tkfont.Font(size=20, family="源泉圓體 B")
+        f2 = tkfont.Font(size=15, family="源泉圓體 M")
+        f3 = tkfont.Font(size=10, family="源泉圓體 M")
+
+        self.window = tk.Toplevel()
+        self.window.geometry('600x420')
+        self.window.resizable(0, 0)
+        self.window.title('會議日期')
+        self.window.configure(bg=self._from_rgb((208, 224, 227)))
+
+        self.lblTitle_B = tk.Label(self.window, text=" 創建新會議", height=1, width=15, font=f1,
+                                   bg=self._from_rgb((68, 84, 106)), fg='white', anchor='w')
+        self.lblname = tk.Label(self.window, text="會議名稱：", bg=self._from_rgb((208, 224, 227)), height=1, width=10,
+                                font=f2)
+        self.lblchoose = tk.Label(self.window, text="你已選擇：", bg=self._from_rgb((208, 224, 227)), height=1, width=10,
+                                  font=f2)
+
+        global meeting_name
+
+        meeting_name = tk.StringVar()
+        self.inputname = tk.Entry(self.window, textvariable=meeting_name, width=30, font=f2)
+
+        self.enydate = tk.Listbox(self.window, height=7, width=15, font=f2, selectmode=tk.MULTIPLE)
+
+        width = root.winfo_reqwidth() + 50
+        height = 100  # 窗口大小
+        x, y = (root.winfo_screenwidth() - width) / 2, (root.winfo_screenheight() - height) / 2
+
+        self.btnYes = tk.Button(self.window, text="確認", height=1, width=5, bg=self._from_rgb((255, 217, 102)), font=f2,
+                                command=self.click_btnYes)
+        self.btn_delete = tk.Button(self.window, text="刪除日期", font=f3, command=self.click_btn_delete)
+        self.scroll_dates = tk.Scrollbar(self.window, command=self.enydate.yview)
+
+        self.lblTitle_B.place(x=0, y=25)
+        self.lblname.place(x=70, y=75)
+        self.lblchoose.place(x=70, y=105)
+        self.enydate.place(x=80, y=140)
+        self.inputname.place(x=190, y=75)
+        self.btnYes.place(relx=0.5, y=380, anchor='center')
+        self.btn_delete.place(x=130, y=320)
+        self.scroll_dates.place(x=232, y=142, relheight=0.403)
+
+        self.enydate.config(yscrollcommand=self.scroll_dates.set)
+
+        datetime = calendar.datetime.datetime  # 日期和時間結合(從這邊複製)
+        timedelta = calendar.datetime.timedelta  # 時間差
+
+        class Calendar:
+            def __init__(s, point=None, position=None):
+                # point    窗口位置
+                # position 窗口在點的位置 'ur'-右上, 'ul'-左上, 'll'-左下, 'lr'-右下
+                fwday = calendar.SUNDAY
+                year = datetime.now().year  # 打開頁面時為當下年份
+                month = datetime.now().month  # 打開頁面時為當下月份
+                locale = None  # 地域設定
+                sel_bg = '#ecffc4'  # 點擊後框框色
+                sel_fg = '#05640e'  # 點擊後字底色
+                s._date = datetime(year, month, 1)  # 該月份第一天
+                s._selection = None  # 設置未選中的日期
+                s.G_Frame = ttk.Frame(self.window)
+                s._cal = s.__get_calendar(locale, fwday)  # 實例化適當的日曆類
+                s.__setup_styles()  # 創建自定義樣式
+                s.__place_widgets()  # pack/grid 小部件
+                s.__config_calendar()  # 調整日曆列和安裝標記
+                # 配置畫布和正確的绑定，以選擇日期。
+                s.__setup_selection(sel_bg, sel_fg)
+                # 存儲項ID，用於稍後插入。
+                s._items = [s._calendar.insert('', 'end', values='') for _ in range(6)]
+                # 在當前空日曆中插入日期
+                s._update()
+                s.G_Frame.place(x=290, y=120)
+                self.window.update_idletasks()  # 刷新頁面
+
+                self.window.deiconify()  # 還原視窗
+                self.window.focus_set()  # 焦點設置在所需小部件上
+                self.window.wait_window()  # 直到按確定
+
+            def __get_calendar(s, locale, fwday):  # 日曆文字化
+                if locale is None:
+                    return calendar.TextCalendar(fwday)
+                else:
+                    return calendar.LocaleTextCalendar(fwday, locale)
+
+            def __setup_styles(s):  # 自定義TTK風格
+                style = ttk.Style(self.window)
+                arrow_layout = lambda dir: (
+                    [('Button.focus', {'children': [('Button.%sarrow' % dir, None)]})])  # 返回參數性質
+                style.layout('L.TButton', arrow_layout('left'))  # 製作點選上個月的箭頭
+                style.layout('R.TButton', arrow_layout('right'))  # 製作點選下個月的箭頭
+
+            def __place_widgets(s):  # 標題框架及其小部件
+                Input_judgment_num = self.window.register(s.Input_judgment)  # 需要将函数包装一下，必要的
+                hframe = ttk.Frame(s.G_Frame)
+                gframe = ttk.Frame(s.G_Frame)
+                bframe = ttk.Frame(s.G_Frame)
+                hframe.pack(in_=s.G_Frame, side='top', pady=5, anchor='center')  # 日曆的上視窗
+                gframe.pack(in_=s.G_Frame, fill=tk.X, pady=5)
+                bframe.pack(in_=s.G_Frame, side='bottom', pady=5)
+                lbtn = ttk.Button(hframe, style='L.TButton', command=s._prev_month)  # 左箭頭
+                lbtn.grid(in_=hframe, column=0, row=0, padx=12)
+                rbtn = ttk.Button(hframe, style='R.TButton', command=s._next_month)  # 右箭頭
+                rbtn.grid(in_=hframe, column=5, row=0, padx=12)
+
+                s.CB_year = ttk.Combobox(hframe, width=5, values=[str(year) for year in
+                                                                  range(datetime.now().year, datetime.now().year + 11,
+                                                                        1)], validate='key',
+                                         validatecommand=(Input_judgment_num, '%P'))  # 製作下拉選單
+                s.CB_year.current(0)  # 下拉式索引起初在該年分
+                s.CB_year.grid(in_=hframe, column=1, row=0)
+                s.CB_year.bind("<<ComboboxSelected>>", s._update)
+                tk.Label(hframe, text='年', justify='left').grid(in_=hframe, column=2, row=0,
+                                                                padx=(0, 5))  # 下拉式選單後面的單位(年)
+                s.CB_month = ttk.Combobox(hframe, width=3, values=['%02d' % month for month in range(1, 13)],
+                                          state='readonly')  # 下拉式選單-月
+                s.CB_month.current(datetime.now().month - 1)
+                s.CB_month.grid(in_=hframe, column=3, row=0)
+                s.CB_month.bind("<<ComboboxSelected>>", s._update)
+                tk.Label(hframe, text='月', justify='left').grid(in_=hframe, column=4, row=0)  # 下拉式選單後面的單位(年)
+                # 日曆部件
+                s._calendar = ttk.Treeview(gframe, show='', selectmode='none', height=7)
+                s._calendar.pack(expand=1, fill='both', side='bottom', padx=5)
+                ttk.Button(bframe, text="加入", width=6, command=lambda: s._exit(confirm=True)).grid(row=0, column=0,
+                                                                                                   sticky='se', padx=20)
+                tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=0, relwidth=1, relheigh=2 / 200)
+                tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=198 / 200, relwidth=1, relheigh=2 / 200)
+                tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=0, relwidth=2 / 200, relheigh=1)
+                tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=198 / 200, rely=0, relwidth=2 / 200, relheigh=1)
+
+            def __config_calendar(s):  # 設計日曆架構
+                cols = ['日', '一', '二', '三', '四', '五', '六']  # 日曆上的星期幾
+                s._calendar['columns'] = cols  # 設定日曆欄
+                s._calendar.tag_configure('header', background='grey90')
+                s._calendar.insert('', 'end', values=cols, tag='header')  # 調整其列寬
+                font = tkfont.Font()
+                maxwidth = max(font.measure(col) for col in cols)
+                for col in cols:
+                    s._calendar.column(col, width=maxwidth, minwidth=maxwidth, anchor='center')
+
+            def __setup_selection(s, sel_bg, sel_fg):
+                def __canvas_forget(evt):
+                    canvas.place_forget()
+                    s._selection = None
+
+                s._font = tkfont.Font()
+                s._canvas = canvas = tk.Canvas(s._calendar, background=sel_bg, borderwidth=0, highlightthickness=0)
+                canvas.text = canvas.create_text(0, 0, fill=sel_fg, anchor='w')
+
+                s._calendar.bind('<Button-1>', s._pressed)  # 點出要的日期
+
+            def _build_calendar(s):
+                year, month = s._date.year, s._date.month  # update header text (Month, YEAR)
+                header = s._cal.formatmonthname(year, month, 0)  # 更新日曆顯示的日期
+                cal = s._cal.monthdayscalendar(year, month)
+                for indx, item in enumerate(s._items):
+                    week = cal[indx] if indx < len(cal) else []
+                    fmt_week = [('%02d' % day) if day else '' for day in week]
+                    s._calendar.item(item, values=fmt_week)
+
+            def _show_select(s, text, bbox):  # 秀出挑選的日子
+                x, y, width, height = bbox
+                textw = s._font.measure(text)
+                canvas = s._canvas
+                canvas.configure(width=width, height=height)
+                canvas.coords(canvas.text, (width - textw) / 2, height / 2 - 1)
+                canvas.itemconfigure(canvas.text, text=text)
+                canvas.place(in_=s._calendar, x=x, y=y)
+
+            def _pressed(s, evt=None, item=None, column=None, widget=None):  # 在日曆的某個地方點擊。
+
+                if not item:
+                    x, y, widget = evt.x, evt.y, evt.widget
+                    item = widget.identify_row(y)
+                    column = widget.identify_column(x)
+                if not column or item not in s._items:  # 在工作日行中單擊或僅在列外單擊。
+                    return
+                item_values = widget.item(item)['values']  # 點選的日期該周
+                if not len(item_values):  # 該行是空的。
+                    return
+                text = item_values[int(column[1]) - 1]  # text 為選擇日期
+                if not text:  # 日期為空
+                    return
+                bbox = widget.bbox(item, column)
+                if not bbox:  # 日曆尚未出現
+                    self.window.after(20, lambda: s._pressed(item=item, column=column, widget=widget))
+                    return
+                text = '%02d' % text
+                s._selection = (text, item, column)
+                s._show_select(text, bbox)
+
+            def _prev_month(s):
+                s._canvas.place_forget()
+                s._selection = None
+                s._date = s._date - timedelta(days=1)
+                s._date = datetime(s._date.year, s._date.month, 1)
+                s.CB_year.set(s._date.year)
+                s.CB_month.set(s._date.month)
+                s._update()
+
+            def _next_month(s):
+                s._canvas.place_forget()
+                s._selection = None
+                year, month = s._date.year, s._date.month
+                s._date = s._date + timedelta(
+                    days=calendar.monthrange(year, month)[1] + 1)
+                s._date = datetime(s._date.year, s._date.month, 1)
+                s.CB_year.set(s._date.year)
+                s.CB_month.set(s._date.month)
+                s._update()
+
+            def _update(s, event=None, key=None):
+                if key and event.keysym != 'Return':
+                    return
+
+                year = int(s.CB_year.get())
+                month = int(s.CB_month.get())
+
+                if year == 0 or year > 9999:
+                    return
+
+                s._canvas.place_forget()
+                s._date = datetime(year, month, 1)
+                s._build_calendar()  # 重建日曆
+
+                if year == datetime.now().year and month == datetime.now().month:
+                    day = datetime.now().day
+                    for _item, day_list in enumerate(s._cal.monthdayscalendar(year, month)):
+                        if day in day_list:
+                            item = 'I00' + str(_item + 2)
+                            column = '#' + str(day_list.index(day) + 1)
+                            self.window.after(100, lambda: s._pressed(item=item, column=column, widget=s._calendar))
+
+            def _exit(s, confirm=False):
+                if not confirm:
+                    pass
+                else:
+                    year = s._date.year
+                    month = s._date.month
+                    choose_date = s._selection[0]
+                    today_year = datetime.now().year
+                    today_month = datetime.now().month
+                    today_day = datetime.now().day
+                    date = str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))
+                    if int(str(year)) > int(str(today_year)):
+                        if len(date_list) != 0:
+                            if date in date_list:
+                                self.window.lower(belowThis=self.page2)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
+                        else:
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d"
+                                                                                              % int(s._selection[0]))))
+                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                    elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
+                        if len(date_list) != 0:
+                            if date in date_list:
+                                self.window.lower(belowThis=self.page2)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
+                        else:
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                        ("%02d" % int(s._selection[0]))))
+                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                    elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(
+                            str(choose_date)) >= int(str(today_day)):
+                        if len(date_list) != 0:
+                            if date in date_list:
+                                self.window.lower(belowThis=self.page2)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
+                        else:
+                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                        ("%02d" % int(s._selection[0]))))
+                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                    else:
+                        self.window.lower(belowThis=self.page2)
+                        tkmessage.showerror(title="日期無效", message="請選擇有效日期")
+                        self.window.wm_attributes('-topmost', 1)
+
+            def _main_judge(s):
+                try:
+                    if self.window.focus_displayof() is None or 'toplevel' not in str(self.window.focus_displayof()):
+                        s._exit()
+                    else:
+                        self.window.after(10, s._main_judge)
+                except:
+                    self.window.after(10, s._main_judge)
+
+            def selection(s):
+                if not s._selection:
+                    return None
+                year = s._date.year
+                month = s._date.month
+
+                return str(datetime(year, month, int(s._selection[0])))[:10]
+
+            def Input_judgment(s, content):
+                if content.isdigit() or content == "":
+                    return True
+                else:
+                    return False
+
+        cal = Calendar()
+
+    def click_btn_delete(self):
+        choose = []
+        choose_date = []
+        choose_tuple = self.enydate.curselection()
+        global date_list
+
+        for i in choose_tuple:
+            choose.append(i)
+            choose_date.append(str(self.enydate.get(i)))
+
+        for k in range(len(choose)):
+            self.enydate.delete(choose[k] - k)
+
+        for k in choose_date:
+            date_list.remove(k)
+
+    def click_btnYes(self):
+        if self.enydate.size() != 0 and self.inputname.get() == "":
+            self.window.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入會議名稱")
+            self.window.wm_attributes('-topmost', 1)
+        elif self.enydate.size() == 0 and self.inputname.get() != "":
+            self.window.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入會議日期")
+            self.window.wm_attributes('-topmost', 1)
+        elif self.enydate.size() == 0 and self.inputname.get() == "":
+            self.window.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入會議名稱及日期")
+            self.window.wm_attributes('-topmost', 1)
+        else:
+            global folder_meeting_names
+            if self.inputname.get() in folder_meeting_names:
+                self.window.lower(belowThis=None)
+                tkmessage.showerror(title="名稱錯誤", message="此名稱已存在")
+                self.window.wm_attributes('-topmost', 1)
+            else:
+                self.window.destroy()
+                new_wb = openpyxl.Workbook()
+                ws1 = new_wb.active
+                name = meeting_name.get()
+                ws1.title = name
+
+                global date_list, meeting_names, folder_location
+                date_list = sorted(date_list)
+
+                for i in range(len(date_list)):
+                    ws1.cell(row=1, column=i + 2).value = date_list[i]
+
+                new_wb.save('%s.xlsx' % (str(name) + " in " + meeting_names[folder_location]))
+
+                global folder_finish_meeting
+                folder_meeting_names.append(name)
+                folder_finish_meeting.append('unfinished')
+
+                for i in range(len(folder_meeting_names)):
+                    sheet_names.cell(row=i + 1, column=1).value = folder_meeting_names[i]
+                    sheet_names.cell(row=i + 1, column=2).value = folder_finish_meeting[i]
+
+                names.save('會議名稱.xlsx')
+
+                self.page2.destroy()
+                Page2()
+
+    def click_btn_meetings(self, a):
+        global name, wb_record, sheet_time, folder_meeting_names, folder_finish_meeting, location, folder_location
+        name = folder_meeting_names[a]
+        finish = folder_finish_meeting[a]
+        wb_record = openpyxl.load_workbook('%s.xlsx' % (str(name) + " in " + meeting_names[folder_location]))
+        sheet_time = wb_record[name]
+        location = a
+
+        if finish == 'finished':
+            self.page2.destroy()
+            Page9()
+        else:
+            self.page2.destroy()
             Page3()
 
 
@@ -567,7 +1137,12 @@ class Page3:
 
     def click_btn_back(self):
         self.page3.destroy()
-        Page1()
+        global names, name, meeting_names, folder_location
+        try:
+            wb = openpyxl.load_workbook(name + ' in ' + meeting_names[folder_location] + '.xlsx')
+            Page2()
+        except (FileNotFoundError, NameError):
+            Page1()
 
 
 class Page4:
@@ -617,12 +1192,14 @@ class Page4:
         chk_btns = []
         dates = []
 
+        # 在視窗中加入canvas以便與scrollbar聯動
         self.canvas = tk.Canvas(self.page4, width=414, height=510, bg=color_2)
         self.canvas.place(x=498, y=80)
         self.slb = tk.Scrollbar(self.page4, orient='horizontal')
         self.canvas.configure(xscrollcommand=self.slb.set)
         self.slb.configure(command=self.canvas.xview)
         self.frame_context = tk.Frame(self.canvas, width=10000, height=1000, bg=color_2)
+        # 無法直接在大視窗下加入scrollbar，因此建立一個含有frame的小視窗
         self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
 
         self.canvas_width = 2
@@ -665,6 +1242,7 @@ class Page4:
         if var_name.get() == "":
             tkmessage.showerror(title="請輸入姓名", message="請輸入姓名！")
         else:
+            # 在excel檔中讀取相對應的儲存格並寫入資料
             member = str(sheet_time.cell(row=18, column=1).value)
             if member == 'None':
                 list_member = [var_name.get()]
@@ -693,6 +1271,7 @@ class Page4:
                                     list_available.append(var_name.get())
                                 sheet_time.cell(row=j + 2, column=i + 2).value = ",".join(list_available)
                 else:
+                    # 若使用者重複填寫時間，將先前的資料覆蓋
                     for i in range(len(dates)):
                         for j in range(16):
                             available = str(sheet_time.cell(row=j + 2, column=i + 2).value)
@@ -842,7 +1421,8 @@ class Page5:
             for j in range(17):
                 if i == 0:
                     if j == 0:
-                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80)
+                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480,
+                                                                                                                  y=80)
                     else:
                         tk.Label(self.page5, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
@@ -1165,7 +1745,7 @@ class Page9:
         self.canvas9.place(x=0, y=0)
         self.slb9 = tk.Scrollbar(self.page9, orient='vertical')
         self.slb9.place(x=980, width=20, height=700)
-        self.canvas9.configure(yscrollcommand=self.slb9.set)
+        self.canvas9.configure(yscrollcommand=self.slb9.set, scrollregion=(0, 0, 1000, 1050))
         self.slb9.configure(command=self.canvas9.yview)
         self.frame_context9 = tk.Frame(self.canvas9, width=2000, height=10000, bg=color_2)
         self.canvas9.create_window((0, 0), window=self.frame_context9, anchor='nw')
@@ -1234,12 +1814,12 @@ class Page9:
         self.lbl9_3.place(x=100, y=180)
         self.lbl9_4.place(x=180, y=180)
         self.lbl9_5.place(x=100, y=230)
-        self.lbl9_6.place(x=420, y=450)
-        self.lbl9_7.place(x=540, y=450)
-        self.lbl9_8.place(x=650, y=450)
-        self.lbl9_9.place(x=410, y=690)
-        self.lbl9_10.place(x=525, y=690)
-        self.lbl9_11.place(x=650, y=690)
+        self.lbl9_6.place(x=475, y=485)
+        self.lbl9_7.place(x=620, y=485)
+        self.lbl9_8.place(x=755, y=485)
+        self.lbl9_9.place(x=461, y=735)
+        self.lbl9_10.place(x=595, y=735)
+        self.lbl9_11.place(x=755, y=735)
         self.btn9.place(x=850, y=75, anchor='center')
 
         #  將會議記錄變成listbox配合scrollbar查閱
@@ -1256,11 +1836,11 @@ class Page9:
 
         # 出缺勤名單 準時
         self.scroll_ontime = tk.Scrollbar(self.frame_context9)
-        self.scroll_ontime.place(x=490, y=481, relheight=0.0193)
+        self.scroll_ontime.place(x=533, y=511, relheight=0.0193)
         var_ontime = tk.StringVar()
         self.lst_ontime = tk.Listbox(self.frame_context9, listvariable=var_ontime, font=f2, width=10,
-                                             height=10, yscrollcommand=self.scroll_ontime.set)
-        self.lst_ontime.place(x=400, y=480)
+                                     height=10, yscrollcommand=self.scroll_ontime.set)
+        self.lst_ontime.place(x=440, y=510)
         for ontime_member_s in ontime_member:
             self.lst_ontime.insert("end", ontime_member_s)
         self.lst_ontime.config(yscrollcommand=self.scroll_ontime.set)
@@ -1268,11 +1848,11 @@ class Page9:
 
         # 出缺勤名單 遲到
         self.scroll_late = tk.Scrollbar(self.frame_context9)
-        self.scroll_late.place(x=610, y=481, relheight=0.0193)
+        self.scroll_late.place(x=678, y=511, relheight=0.0193)
         var_late = tk.StringVar()
         self.lst_late = tk.Listbox(self.frame_context9, listvariable=var_late, font=f2, width=10,
-                                             height=10, yscrollcommand=self.scroll_late.set)
-        self.lst_late.place(x=520, y=480)
+                                   height=10, yscrollcommand=self.scroll_late.set)
+        self.lst_late.place(x=585, y=510)
         for late_member_s in late_member:
             self.lst_late.insert("end", late_member_s)
         self.lst_late.config(yscrollcommand=self.scroll_late.set)
@@ -1280,11 +1860,11 @@ class Page9:
 
         # 出缺勤名單 未出席
         self.scroll_absence = tk.Scrollbar(self.frame_context9)
-        self.scroll_absence.place(x=720, y=481, relheight=0.0193)
+        self.scroll_absence.place(x=823, y=511, relheight=0.0193)
         var_absence = tk.StringVar()
         self.lst_absence = tk.Listbox(self.frame_context9, listvariable=var_absence, font=f2, width=10,
-                                             height=10, yscrollcommand=self.scroll_absence.set)
-        self.lst_absence.place(x=630, y=480)
+                                      height=10, yscrollcommand=self.scroll_absence.set)
+        self.lst_absence.place(x=730, y=510)
         for absence_member_s in absence_member:
             self.lst_absence.insert("end", absence_member_s)
         self.lst_absence.config(yscrollcommand=self.scroll_absence.set)
@@ -1292,11 +1872,11 @@ class Page9:
 
         # 是否完成任務名單 完成任務
         self.scroll_done = tk.Scrollbar(self.frame_context9)
-        self.scroll_done.place(x=490, y=721, relheight=0.0193)
+        self.scroll_done.place(x=533, y=761, relheight=0.0193)
         var_done = tk.StringVar()
         self.lst_done = tk.Listbox(self.frame_context9, listvariable=var_done, font=f2, width=10,
-                                             height=10, yscrollcommand=self.scroll_done.set)
-        self.lst_done.place(x=400, y=720)
+                                   height=10, yscrollcommand=self.scroll_done.set)
+        self.lst_done.place(x=440, y=760)
         for done_member_s in done_member:
             self.lst_done.insert("end", done_member_s)
         self.lst_done.config(yscrollcommand=self.scroll_done.set)
@@ -1304,11 +1884,11 @@ class Page9:
 
         # 是否完成任務名單 未完成任務
         self.scroll_undone = tk.Scrollbar(self.frame_context9)
-        self.scroll_undone.place(x=610, y=721, relheight=0.0193)
+        self.scroll_undone.place(x=678, y=761, relheight=0.0193)
         var_undone = tk.StringVar()
         self.lst_undone = tk.Listbox(self.frame_context9, listvariable=var_undone, font=f2, width=10,
-                                             height=10, yscrollcommand=self.scroll_undone.set)
-        self.lst_undone.place(x=520, y=720)
+                                     height=10, yscrollcommand=self.scroll_undone.set)
+        self.lst_undone.place(x=585, y=760)
         for undone_member_s in undone_member:
             self.lst_undone.insert("end", undone_member_s)
         self.lst_undone.config(yscrollcommand=self.scroll_undone.set)
@@ -1316,46 +1896,42 @@ class Page9:
 
         # 是否完成任務名單 無任務
         self.scroll_none = tk.Scrollbar(self.frame_context9)
-        self.scroll_none.place(x=720, y=721, relheight=0.0193)
+        self.scroll_none.place(x=823, y=761, relheight=0.0193)
         var_none = tk.StringVar()
         self.lst_none = tk.Listbox(self.frame_context9, listvariable=var_none, font=f2, width=10,
-                                             height=10, yscrollcommand=self.scroll_none.set)
-        self.lst_none.place(x=630, y=720)
+                                   height=10, yscrollcommand=self.scroll_none.set)
+        self.lst_none.place(x=730, y=760)
         for none_member_s in none_member:
             self.lst_none.insert("end", none_member_s)
         self.lst_none.config(yscrollcommand=self.scroll_none.set)
         self.scroll_none.config(command=self.lst_none.yview)
-
-        self.canvas9.configure(scrollregion=(0, 0, 1000, 1000))
 
         # 出缺勤圓餅圖
         labels1 = ["準時", "遲到", "未出席"]
         values1 = [ontime_num, late_num, absence_num]
 
         if ontime_num == 0:
-            values2.remove(ontime_num)
-            labels2.remove("準時")
+            values1.remove(ontime_num)
+            labels1.remove("準時")
         if late_num == 0:
-            values2.remove(late_num)
-            labels2.remove("遲到")
+            values1.remove(late_num)
+            labels1.remove("遲到")
         if absence_num == 0:
-            values2.remove(absence_num)
-            labels2.remove("未出席")
+            values1.remove(absence_num)
+            labels1.remove("未出席")
 
-        figure1 = plt.figure(figsize=(4.7,4),dpi=60)
+        figure1 = plt.figure(figsize=(3, 2.5), dpi=105)
         figure1.set_facecolor(color_2)
-        pie1 = plt.pie(values1, labels=labels1, pctdistance=0.6, autopct = "%1.1f%%")
-        plt.axis('equal')
-        plt.title("出缺勤", {"fontsize" : 15})
+        pie1 = plt.pie(values1, labels=labels1, pctdistance=0.6, autopct="%1.1f%%")
+        plt.title("出缺勤", {"fontsize": 14})
 
         self.canvas1 = FigureCanvasTkAgg(figure1, self.frame_context9)
-        self.canvas1.draw()
-        self.canvas1.get_tk_widget().place(x=90, y=435)
+        self.canvas1.get_tk_widget().place(x=80, y=485)
 
         # 是否完成任務圓餅圖
         labels2 = ["完成任務", "未完成任務", "無任務"]
         values2 = [done_num, undone_num, none_num]
-        
+
         if done_num == 0:
             values2.remove(done_num)
             labels2.remove("完成任務")
@@ -1366,19 +1942,22 @@ class Page9:
             values2.remove(none_num)
             labels2.remove("無任務")
 
-        figure2 = plt.figure(figsize=(4.7,4),dpi=60)
+        figure2 = plt.figure(figsize=(3, 2.5), dpi=105)
         figure2.set_facecolor(color_2)
-        pie2 = plt.pie(values2, labels=labels2, pctdistance=0.6, autopct = "%1.1f%%")
-        plt.axis('equal')
-        plt.title("是否完成指派任務", {"fontsize" : 15})
+        pie2 = plt.pie(values2, labels=labels2, pctdistance=0.6, autopct="%1.1f%%")
+        plt.title("是否完成指派任務", {"fontsize": 14})
 
         self.canvas = FigureCanvasTkAgg(figure2, self.frame_context9)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().place(x=90, y=675)
-        
+        self.canvas.get_tk_widget().place(x=80, y=740)
+
     def click_btn9_1(self):
         self.page9.destroy()
-        Page1()
+        global names, name, meeting_names, folder_location
+        try:
+            wb = openpyxl.load_workbook(name + ' in ' + meeting_names[folder_location] + '.xlsx')
+            Page2()
+        except (FileNotFoundError, NameError):
+            Page1()
 
 
 root.geometry("1000x700")
