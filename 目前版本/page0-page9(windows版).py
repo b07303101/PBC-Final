@@ -263,11 +263,11 @@ class Page1:
                 # point    窗口位置
                 # position 窗口在點的位置 'ur'-右上, 'ul'-左上, 'll'-左下, 'lr'-右下
                 fwday = calendar.SUNDAY
-                year = datetime.now().year  # 打開頁面時為當下年份
-                month = datetime.now().month  # 打開頁面時為當下月份
-                locale = None  # 地域設定
-                sel_bg = '#ecffc4'  # 點擊後框框色
-                sel_fg = '#05640e'  # 點擊後字底色
+                year = datetime.now().year  # 為使打開頁面時為當下年份
+                month = datetime.now().month  # 為使打開頁面時為當下月份
+                locale = None  
+                sel_bg = '#ecffc4'  # 設定點擊日期後的框顏色
+                sel_fg = '#05640e'  # 設定點擊日期後的字底色
                 s._date = datetime(year, month, 1)  # 該月份第一天
                 s._selection = None  # 設置未選中的日期
                 s.G_Frame = ttk.Frame(self.window)
@@ -276,7 +276,7 @@ class Page1:
                 s.__place_widgets()  # pack/grid 小部件
                 s.__config_calendar()  # 調整日曆列和安裝標記
                 # 配置畫布和正確的绑定，以選擇日期。
-                s.__setup_selection(sel_bg, sel_fg)
+                s.__setup_selection(sel_bg, sel_fg) 
                 # 存儲項ID，用於稍後插入。
                 s._items = [s._calendar.insert('', 'end', values='') for _ in range(6)]
                 # 在當前空日曆中插入日期
@@ -306,34 +306,34 @@ class Page1:
                 hframe = ttk.Frame(s.G_Frame)
                 gframe = ttk.Frame(s.G_Frame)
                 bframe = ttk.Frame(s.G_Frame)
-                hframe.pack(in_=s.G_Frame, side='top', pady=5, anchor='center')  # 日曆的上視窗
+                hframe.pack(in_=s.G_Frame, side='top', pady=5, anchor='center')  # 月曆的上視窗
                 gframe.pack(in_=s.G_Frame, fill=tk.X, pady=5)
                 bframe.pack(in_=s.G_Frame, side='bottom', pady=5)
-                lbtn = ttk.Button(hframe, style='L.TButton', command=s._prev_month)  # 左箭頭
+                lbtn = ttk.Button(hframe, style='L.TButton', 
+                                  command=s._prev_month)  # 月曆上方左箭頭，點選後月曆切換至前個月
                 lbtn.grid(in_=hframe, column=0, row=0, padx=12)
-                rbtn = ttk.Button(hframe, style='R.TButton', command=s._next_month)  # 右箭頭
+                rbtn = ttk.Button(hframe, style='R.TButton', 
+                                  command=s._next_month)  # 月曆上方右箭頭，點選後月曆切換至下個月
                 rbtn.grid(in_=hframe, column=5, row=0, padx=12)
 
                 s.CB_year = ttk.Combobox(hframe, width=5, values=[str(year) for year in
                                                                   range(datetime.now().year, datetime.now().year + 11,
                                                                         1)], validate='key',
-                                         validatecommand=(Input_judgment_num, '%P'))  # 製作下拉選單
-                s.CB_year.current(0)  # 下拉式索引起初在該年分
+                                         validatecommand=(Input_judgment_num, '%P'))  # 製作月曆年份的下拉選單
+                s.CB_year.current(0)  # 月曆一開始呈現當下年分
                 s.CB_year.grid(in_=hframe, column=1, row=0)
-                s.CB_year.bind("<<ComboboxSelected>>", s._update)
+                s.CB_year.bind("<<ComboboxSelected>>", s._update)  # 選取(年)下拉式選單後，月曆更新
                 tk.Label(hframe, text='年', justify='left').grid(in_=hframe, column=2, row=0,
                                                                 padx=(0, 5))  # 下拉式選單後面的單位(年)
                 s.CB_month = ttk.Combobox(hframe, width=3, values=['%02d' % month for month in range(1, 13)],
-                                          state='readonly')  # 下拉式選單-月
-                s.CB_month.current(datetime.now().month - 1)
+                                          state='readonly')  # 製作月曆年份的下拉選單
+                s.CB_month.current(datetime.now().month - 1)  # 月曆一開始呈現當下月份
                 s.CB_month.grid(in_=hframe, column=3, row=0)
-                s.CB_month.bind("<<ComboboxSelected>>", s._update)
+                s.CB_month.bind("<<ComboboxSelected>>", s._update)  # 選取(月)下拉式選單後，月曆更新
                 tk.Label(hframe, text='月', justify='left').grid(in_=hframe, column=4, row=0)  # 下拉式選單後面的單位(年)
                 # 日曆部件
-                s._calendar = ttk.Treeview(gframe, show='', selectmode='none', height=7)
+                s._calendar = ttk.Treeview(gframe, show='', selectmode='none', height=7)  # 建立放上日期的頁面
                 s._calendar.pack(expand=1, fill='both', side='bottom', padx=5)
-                ttk.Button(bframe, text="加入", width=6, command=lambda: s._exit(confirm=True)).grid(row=0, column=0,
-                                                                                                   sticky='se', padx=20)
                 tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=0, relwidth=1, relheigh=2 / 200)
                 tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=198 / 200, relwidth=1, relheigh=2 / 200)
                 tk.Frame(s.G_Frame, bg='#565656').place(x=0, y=0, relx=0, rely=0, relwidth=2 / 200, relheigh=1)
@@ -360,14 +360,15 @@ class Page1:
 
                 s._calendar.bind('<Button-1>', s._pressed)  # 點出要的日期
 
-            def _build_calendar(s):
-                year, month = s._date.year, s._date.month  # update header text (Month, YEAR)
+            def _build_calendar(s):  # 建立月曆-日期
+                year = s._date.year  # s._date = datetime(year, month, 1)， 因此設定變數year為操作程式當下年分
+                month = s._date.month   # 設定變數month為操作程式當下月份
                 header = s._cal.formatmonthname(year, month, 0)  # 更新日曆顯示的日期
-                cal = s._cal.monthdayscalendar(year, month)
-                for indx, item in enumerate(s._items):
-                    week = cal[indx] if indx < len(cal) else []
+                cal = s._cal.monthdayscalendar(year, month)  # 此函數會建立指定年月份的周列表，以供屆時放入treeview
+                for indx, item in enumerate(s._items):  # s._items為在treeview中先在每格插入""，一排放7個(先建立月曆的架構)
+                    week = cal[indx] if indx < len(cal) else []  # 因為一個月頂多四周多，因此若indx>cal長度，將week設為空list
                     fmt_week = [('%02d' % day) if day else '' for day in week]
-                    s._calendar.item(item, values=fmt_week)
+                    s._calendar.item(item, values=fmt_week)  # 將該年月份的日期分配放置treeview
 
             def _show_select(s, text, bbox):  # 秀出挑選的日子
                 x, y, width, height = bbox
@@ -378,7 +379,7 @@ class Page1:
                 canvas.itemconfigure(canvas.text, text=text)
                 canvas.place(in_=s._calendar, x=x, y=y)
 
-            def _pressed(s, evt=None, item=None, column=None, widget=None):  # 在日曆的某個地方點擊。
+            def _pressed(s, evt=None, item=None, column=None, widget=None,confirm = False):  # 在日曆的某個地方點擊。
 
                 if not item:
                     x, y, widget = evt.x, evt.y, evt.widget
@@ -399,8 +400,59 @@ class Page1:
                 text = '%02d' % text
                 s._selection = (text, item, column)
                 s._show_select(text, bbox)
+                if  confirm:
+                    pass
+                else:
+                    year = s._date.year  # 使用者選取日期中的年份
+                    month = s._date.month  # 使用者選取日期中的月份
+                    choose_date = s._selection[0]    # 使用者選取日期中的"日"
+                    today_year = datetime.now().year  
+                    today_month = datetime.now().month
+                    today_day = datetime.now().day
+                    date = str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))
+                    if int(str(year)) > int(str(today_year)):
+                        if len(date_list) != 0:
+                            if date in date_list:  # 若選擇日期出現在date_list，代表重複日期，必須跳出錯誤訊息
+                                self.window.lower(belowThis=self.page1)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)  
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
+                        else:
+                            date_list.append("1")
+                    elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
+                        if len(date_list) != 0:
+                            if date in date_list:
+                                self.window.lower(belowThis=self.page1)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
+                        else:
+                            date_list.append("1")
+                    elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(
+                            str(choose_date)) >= int(str(today_day)):
+                        if len(date_list) != 0:
+                            if date in date_list:
+                                self.window.lower(belowThis=self.page1)
+                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
+                                self.window.wm_attributes('-topmost', 1)
+                            else:
+                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
+                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
+                                                            ("%02d" % int(s._selection[0]))))
+                        else:
+                            date_list.append("1")
+                    else:  # 若選取的日期為今天之前的日期，跳出錯誤訊息
+                        self.window.lower(belowThis=self.page1)
+                        tkmessage.showerror(title="日期無效", message="請選擇有效日期")
+                        self.window.wm_attributes('-topmost', 1)
 
-            def _prev_month(s):
+            def _prev_month(s):  # 按下左箭頭後，月曆頁面需進行切換
                 s._canvas.place_forget()
                 s._selection = None
                 s._date = s._date - timedelta(days=1)
@@ -409,7 +461,7 @@ class Page1:
                 s.CB_month.set(s._date.month)
                 s._update()
 
-            def _next_month(s):
+            def _next_month(s):  # 按下右箭頭後，月曆頁面需進行切換
                 s._canvas.place_forget()
                 s._selection = None
                 year, month = s._date.year, s._date.month
@@ -442,64 +494,7 @@ class Page1:
                             column = '#' + str(day_list.index(day) + 1)
                             self.window.after(100, lambda: s._pressed(item=item, column=column, widget=s._calendar))
 
-            def _exit(s, confirm=False):
-                if not confirm:
-                    pass
-                else:
-                    year = s._date.year
-                    month = s._date.month
-                    choose_date = s._selection[0]
-                    today_year = datetime.now().year
-                    today_month = datetime.now().month
-                    today_day = datetime.now().day
-                    date = str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0]))
-                    if int(str(year)) > int(str(today_year)):
-                        if len(date_list) != 0:
-                            if date in date_list:
-                                self.window.lower(belowThis=self.page1)
-                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
-                                self.window.wm_attributes('-topmost', 1)
-                            else:
-                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
-                                                            ("%02d" % int(s._selection[0]))))
-                        else:
-                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" + ("%02d"
-                                                                                              % int(s._selection[0]))))
-                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                    elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
-                        if len(date_list) != 0:
-                            if date in date_list:
-                                self.window.lower(belowThis=self.page1)
-                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
-                                self.window.wm_attributes('-topmost', 1)
-                            else:
-                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
-                                                            ("%02d" % int(s._selection[0]))))
-                        else:
-                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
-                                                        ("%02d" % int(s._selection[0]))))
-                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                    elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(
-                            str(choose_date)) >= int(str(today_day)):
-                        if len(date_list) != 0:
-                            if date in date_list:
-                                self.window.lower(belowThis=self.page1)
-                                tkmessage.showerror(title="日期重複", message="此日期已選擇")
-                                self.window.wm_attributes('-topmost', 1)
-                            else:
-                                date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                                self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
-                                                            ("%02d" % int(s._selection[0]))))
-                        else:
-                            self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
-                                                        ("%02d" % int(s._selection[0]))))
-                            date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
-                    else:
-                        self.window.lower(belowThis=self.page1)
-                        tkmessage.showerror(title="日期無效", message="請選擇有效日期")
-                        self.window.wm_attributes('-topmost', 1)
+            
 
             def _main_judge(s):
                 try:
