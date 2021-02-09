@@ -1194,7 +1194,7 @@ class Page9:
         self.lst_meeting_record.config(yscrollcommand=self.scroll_meeting_record.set)
         self.scroll_meeting_record.config(command=self.lst_meeting_record.yview)
 
-        sheet_time = wb_record.worksheet_by_title(name)
+        sheet_time = wb_record.worksheet_by_title('時間統計')
         member_list = str(sheet_time.cell((18, 1)).value).split(',')
         self.canvas_height_p9 = 440
         for i in range(len(member_list)):
