@@ -60,10 +60,12 @@ class Page1:
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=12, family="源泉圓體 M") 
 
         color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
         color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
         color_3 = self._from_rgb((255, 217, 102))  # 淡橘
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
 
         # 加scrollbar
         self.canvas1 = tk.Canvas(self.page1, width=1000, height=700, bg=color_2)
@@ -87,7 +89,19 @@ class Page1:
         self.lblTitle_A.place(relx=0, rely=0.005, anchor='nw')
         self.btnCreate_New.place(relx=0.78, rely=0.005, anchor='nw')
         self.btnCreate_folder.place(relx=0.55, rely=0.005, anchor='nw')
-
+        
+        # 搜尋功能
+        self.lblSearch = tk.Label(self.frame_context1, text="關鍵字：", font=f3, bg=color_2)
+        self.btnSearch = tk.Button(self.frame_context1, text = '搜尋', command=self.click_btnSearch, height=1, width=3, font = f3, bg=color_4)
+        
+        global keywords
+        keywords=tk.StringVar()
+        self.inputKey = tk.Entry(self.frame_context1, textvariable = keywords, width=10, font=f3)
+        
+        self.lblSearch.place(relx=0.7, rely=0.0012, anchor='nw')
+        self.btnSearch.place(relx=0.9, rely=0.001, anchor='nw')
+        self.inputKey.place(relx=0.78, rely=0.0012, anchor='nw')
+        
         global names, sheet_names
         names = openpyxl.load_workbook('會議名稱.xlsx')
         sheet_names = names['會議']
@@ -110,11 +124,15 @@ class Page1:
         yaxis = 150
         k = 0
         l = 0
-
+        
+        self.pixel = tk.PhotoImage(height=2, width=10)
         for i in range(len(meeting_names)):
+            length = len(meeting_names[i])
+            font = tkfont.Font(size=30-length, family="源泉圓體 B")
             if meeting_or_folder[i] == 'folder':
-                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10, relief='solid',
-                                           font=f1, bg='light grey', command=lambda b=i: self.click_btn_folder(b))
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image = self.pixel, height=120, width=252, relief='solid',
+                                           font=font, bg='light grey', compound='center', wraplength=200, justify="left",
+                                           command=lambda b=i: self.click_btn_folder(b))
                 self.btn_names.place(x=44 + 325 * (k % 3), y=150 + 150 * (k // 3))
                 yaxis = 150 + 150 * (k // 3 + 1)
 
@@ -127,9 +145,12 @@ class Page1:
                 k += 1
 
         for i in range(len(meeting_names)):
+            length = len(meeting_names[i])
+            font = tkfont.Font(size=30-length, family="源泉圓體 B")
             if meeting_or_folder[i] == 'meeting':
-                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10,
-                                           relief='solid', font=f1, bg='white', command=lambda a=i: self.click_btn_meetings(a))
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image = self.pixel, height=120, width=252,
+                                           relief='solid', font=font, bg='white', compound = "center", wraplength=200, justify="left",
+                                           command=lambda a=i: self.click_btn_meetings(a))
                 self.btn_names.place(x=44 + 325 * (l % 3), y=yaxis + 150 * (l // 3))
 
                 if l % 3 == 0:
@@ -144,7 +165,16 @@ class Page1:
             self.canvas1.configure(scrollregion=(0, 0, 1000, self.canvas_height_p1))
         else:
             self.canvas1.configure(scrollregion=(0, 0, 1000, 700))
-
+    
+    # 搜尋功能函數
+    def click_btnSearch(self):
+        if keywords.get() == "":
+            self.page1.lower(belowThis=None)
+            tkmessage.showerror(title="輸入未完整", message="您尚未輸入關鍵字")
+        else:
+            self.page1.destroy()
+            PageSearch()
+        
     def click_btnCreate_New(self):
         self.create_window()
 
@@ -606,6 +636,107 @@ class Page1:
         self.page1.destroy()
         Page2()
 
+class PageSearch:
+    def _from_rgb(self, rgb):
+        return "#%02x%02x%02x" % rgb
+
+    def __init__(self, master=None):
+        self.root = master
+        self.pageS = tk.Frame(self.root, width=1000, height=700, bg=self._from_rgb((208, 224, 227)))
+        self.pageS.master.title("會議")
+        self.pageS.grid()
+
+        f1 = tkfont.Font(size=30, family="源泉圓體 B")
+        f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=15, family="源泉圓體 M") 
+
+        color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
+        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
+        color_3 = self._from_rgb((255, 217, 102))  # 淡橘
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
+        
+        global keywords
+        self.lblSearch = tk.Label(self.pageS, text=' ' + "關鍵字：" + keywords.get(), height=1, width=15, font=f1, bg=color_1, fg='white',
+                                  anchor='w')
+        self.lblSearch.place(x=0, y=50)                    
+        self.pixel = tk.PhotoImage(height=2, width=10)
+        fit_meetings = []
+        
+        global meeting_names, finish_meeting, meeting_or_folder
+        
+        yaxis = 180
+        k = 0
+        l = 0
+        
+        self.pixel = tk.PhotoImage(height=2, width=10)
+        for names in meeting_names:
+            if keywords.get() in names:
+                fit_meetings.append(names)
+        for i in range(len(fit_meetings)):
+            length = len(fit_meetings[i])
+            font = tkfont.Font(size=30-length, family="源泉圓體 B")
+            if meeting_or_folder[i] == 'folder':
+                self.btn_names = tk.Button(self.pageS, text=fit_meetings[i], image = self.pixel, height=120, width=252, relief='solid',
+                                           font=font, bg='light grey', compound='center', wraplength=200, justify="left",
+                                           command=lambda b=i: self.click_btn_folder(b))
+                self.btn_names.place(x=44 + 325 * (k % 3), y=180 + 150 * (k // 3))
+                yaxis = 180 + 150 * (k // 3 + 1)
+
+                if finish_meeting[i] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                k += 1
+
+        for i in range(len(fit_meetings)):
+            length = len(fit_meetings[i])
+            font = tkfont.Font(size=30-length, family="源泉圓體 B")
+            if meeting_or_folder[i] == 'meeting':
+                self.btn_names = tk.Button(self.pageS, text=fit_meetings[i], image = self.pixel, height=120, width=252,
+                                           relief='solid', font=font, bg='white', compound = "center", wraplength=200, justify="left",
+                                           command=lambda a=i: self.click_btn_meetings(a))
+                self.btn_names.place(x=44 + 325 * (l % 3), y=yaxis + 150 * (l // 3))
+
+                if finish_meeting[i] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                l += 1
+                
+        counts = len(fit_meetings)
+        if counts != 0:
+            self.lblText = tk.Label(self.pageS, text = "符合\""+keywords.get()+"\"的結果共有"+str(counts)+"個：", font=f2, bg=color_2)
+            self.lblText.place(x=50, y = 120)
+        else:
+            self.lblText = tk.Label(self.pageS, text = "無相關搜尋結果", font=f2, bg=color_2)
+            self.lblText.place(x=50, y = 120)
+
+        self.btn_back = tk.Button(self.pageS, text="返回", height=1, font=f3, command=self.click_btn_back, bg=color_3)
+        self.btn_back.place(relx=0.5, y=600, anchor='center')
+        
+    def click_btn_meetings(self, a):
+        global name, wb_record, sheet_time, finish_meeting, location
+        name = meeting_names[a]
+        finish = finish_meeting[a]
+        wb_record = openpyxl.load_workbook('%s.xlsx' % name)
+        sheet_time = wb_record[name]
+        location = a
+
+        if finish == 'finished':
+            self.pageS.destroy()
+            Page9()
+        else:
+            self.pageS.destroy()
+            Page3()
+            
+    def click_btn_folder(self, b):
+        global folder_location
+        folder_location = b
+
+        self.pageS.destroy()
+        Page2()
+        
+    def click_btn_back(self):
+        self.pageS.destroy()
+        Page1()
 
 class Page2:
     def _from_rgb(self, rgb):
