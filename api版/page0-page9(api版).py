@@ -16,9 +16,6 @@ colors = ['red4', 'firebrick4', 'firebrick3', 'red2', 'red', 'firebrick1', 'Oran
           'green yellow', 'lawn green', 'chartreuse2', 'lime green', 'green3', 'SpringGreen3', 'SeaGreen3',
           'medium sea green', 'springGreen4', 'sea green', 'forest green', 'green4', 'dark green']
 
-absence = []
-mission = []
-
 root = tk.Tk()
 
 
@@ -554,6 +551,8 @@ class Page1:
                 wb_record = gc.open(name)
                 sheet_time = wb_record[0]
                 sheet_time.title = '時間統計'
+                ws = wb_record.add_worksheet('出缺勤')
+                wb_record.add_worksheet('Meeting record')
 
                 wb_record.share('arial5623@gmail.com', role='writer', type='user')
                 wb_record.share('alice0911496698@gmail.com', role='writer', type='user')
@@ -566,11 +565,23 @@ class Page1:
                 date_list.remove('1')
                 date_list = sorted(date_list)
 
+                columns = []
+                rows = []
+
                 for i in range(len(date_list)):
-                    sheet_time.update_value((1, i + 2), date_list[i])
+                    columns.append(date_list[i])
+
+                for i in range(16):
+                    rows.append(str(7 + i) + ':00-' + str(8 + i) + ':00')
+
+                df = pd.DataFrame(columns=columns, index=rows)
+                sheet_time.set_dataframe(df, start='A1', copy_index=True, copy_head=True, nan='')
 
                 global sheet_names
-                sheet_names.append_table([meeting_name.get(), 'unfinished', 'meeting'], dimension='ROWS', overwrite=False)
+                sheet_names.append_table([meeting_name.get(), 'unfinished', 'meeting'], dimension='ROWS',
+                                         overwrite=False)
+
+                ws.update_row(index=1, values=['name', 'absence', 'mission'], col_offset=0)
 
                 self.page1.destroy()
                 Page1()
@@ -633,8 +644,8 @@ class Page2:
 
         self.canvas_height_p1 = 200
 
-        self.lblTitle_A = tk.Label(self.frame_context1, text=" " + str(meeting_names[folder_location]), height=1, width=15,
-                                   font=f1, bg=color_1, fg='white', anchor='w')
+        self.lblTitle_A = tk.Label(self.frame_context1, text=" " + str(meeting_names[folder_location]), height=1,
+                                   width=15, font=f1, bg=color_1, fg='white', anchor='w')
         self.btnCreate_New = tk.Button(self.frame_context1, text="創建新會議", height=1, width=10, font=f2,
                                        bg=color_3, fg='black', command=self.click_btnCreate_New)
         self.btn_back = tk.Button(self.page2, text="返回", height=1, font=f3, command=self.click_btn_back, bg=color_3)
@@ -1036,6 +1047,8 @@ class Page2:
                 wb_record = gc.open(str(name) + " in " + str(meeting_names[folder_location]))
                 sheet_time = wb_record[0]
                 sheet_time.title = '時間統計'
+                ws = wb_record.add_worksheet('出缺勤')
+                wb_record.add_worksheet('Meeting record')
 
                 wb_record.share('arial5623@gmail.com', role='writer', type='user')
                 wb_record.share('alice0911496698@gmail.com', role='writer', type='user')
@@ -1048,11 +1061,22 @@ class Page2:
                 date_list.remove('1')
                 date_list = sorted(date_list)
 
+                columns = []
+                rows = []
+
                 for i in range(len(date_list)):
-                    sheet_time.update_value((1, i + 2), date_list[i])
+                    columns.append(date_list[i])
+
+                for i in range(16):
+                    rows.append(str(7 + i) + ':00-' + str(8 + i) + ':00')
+
+                df = pd.DataFrame(columns=columns, index=rows)
+                sheet_time.set_dataframe(df, start='A1', copy_index=True, copy_head=True, nan='')
 
                 global sheet_names
                 sheet_names.append_table([name, 'unfinished'], dimension='ROWS', overwrite=False)
+
+                ws.update_row(index=1, values=['name', 'absence', 'mission'], col_offset=0)
 
                 self.page2.destroy()
                 Page2()
@@ -1095,8 +1119,8 @@ class Page3:
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
         f3 = tkfont.Font(size=15, family="源泉圓體 M")
 
-        self.lab_title_3 = tk.Label(self.page3, text=' ' + str(name), height=1, width=15, font=f1, bg=color_1, fg='white',
-                                    anchor='w')
+        self.lab_title_3 = tk.Label(self.page3, text=' ' + str(name), height=1, width=15, font=f1, bg=color_1,
+                                    fg='white', anchor='w')
         self.btn_createtime = tk.Button(self.page3, text="新增你的時間", height=1, width=18, font=f2, fg=color_1,
                                         relief='solid', command=self.click_btn_createtime)
         self.btn_times = tk.Button(self.page3, text="查看所有人的時間", height=1, width=18, font=f2, fg=color_1,
@@ -1216,12 +1240,15 @@ class Page4:
         self.canvas.configure(scrollregion=(0, 0, self.canvas_width, 530))
 
     def click_btn_yes(self):
+        abs_sheet = wb_record.worksheet_by_title('出缺勤')
+
         if var_name.get() == "":
             tkmessage.showerror(title="請輸入姓名", message="請輸入姓名！")
         else:
             member = sheet_time.cell((18, 1)).value
             if member == '':
                 list_member = [var_name.get()]
+                abs_sheet.update_col(index=1, values=list_member, row_offset=1)
                 for i in range(len(dates)):
                     for j in range(16):
                         if chk_btns[i][j].get() == 1:
@@ -1236,6 +1263,7 @@ class Page4:
                 list_member = member.split(',')
                 if var_name.get() not in list_member:
                     list_member.append(var_name.get())
+                    abs_sheet.update_col(index=1, values=list_member, row_offset=1)
                     for i in range(len(dates)):
                         for j in range(16):
                             if chk_btns[i][j].get() == 1:
@@ -1391,7 +1419,8 @@ class Page5:
             for j in range(17):
                 if i == 0:
                     if j == 0:
-                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80)
+                        tk.Label(self.page5, relief='solid', borderwidth=1, width=10, height=2, bg=color_2).place(x=480,
+                                                                                                                  y=80)
                     else:
                         tk.Label(self.page5, text=str(6 + j) + ':00-' + str(7 + j) + ':00', relief='solid',
                                  borderwidth=1, width=10, height=2, bg=color_2).place(x=480, y=80 + 30 * j)
@@ -1529,9 +1558,6 @@ class Page6:
     def click_btn6_3(self):
         message = tkmessage.askokcancel(title="確定結束會議？", message="結束會議後，您將無法作任何更動")
         if message:
-            global absence, mission
-            absence = []
-            mission = []
             sheet_names.update_value((location + 1, 2), 'finished')
 
             self.page6.destroy()
@@ -1583,35 +1609,57 @@ class Page7:
         self.lab7_5 = tk.Label(self.frame_context, text="否", font=f2, bg=color_2).place(x=770, y=125)
         self.lab7_6 = tk.Label(self.frame_context, text="無任務", font=f2, bg=color_2).place(x=823, y=125)
 
-        try:
-            sheet = wb_record.worksheet_by_title("出缺勤")
-        except pygsheets.exceptions.WorksheetNotFound:
-            sheet = wb_record.add_worksheet('出缺勤')
+        global sheet, df_sheet, member_list, absence_value, mission_value
 
-        global absence, mission, member_list
-
+        sheet = wb_record.worksheet_by_title("出缺勤")
+        df_sheet = sheet.get_as_df(has_header=False, index_column=None, include_tailing_empty=False)
         member_list = str(sheet_time.cell((18, 1)).value).split(',')
+        absence_value = []
+        mission_value = []
+
+        try:
+            absence = df_sheet.iloc[1:, 1].tolist()
+            mission = df_sheet.iloc[1:, 2].tolist()
+        except IndexError:
+            absence = []
+            mission = []
+
+        for i in range(len(absence)):
+            if absence[i] == '準時':
+                absence[i] = 1
+            if absence[i] == '遲到':
+                absence[i] = 2
+            if absence[i] == '未出席':
+                absence[i] = 3
+
+        for i in range(len(mission)):
+            if mission[i] == '完成任務':
+                mission[i] = 1
+            if mission[i] == '未完成任務':
+                mission[i] = 2
+            if mission[i] == '無任務':
+                mission[i] = 3
+
         canvas_height = 160  # 計算最後頁面會有多長
         for i in range(len(member_list)):
-            sheet.update_value((i + 1, 1), member_list[i])
             tk.Label(self.frame_context, text=member_list[i], font=f2, bg=color_2).place(x=115, y=168 + 35 * i,
                                                                                          anchor='center')
             tk.Label(self.frame_context, text='是否完成指派任務？', font=f2, bg=color_2).place(x=515, y=155 + 35 * i)
 
-            if len(absence) != len(member_list):
-                var_absence = tk.IntVar()
-                absence.append(var_absence)
-            else:
-                var_absence = absence[i]
+            var_absence = tk.IntVar()
+            absence_value.append(var_absence)
+            if len(absence) > i:
+                var_absence.set(absence[i])
+
             tk.Radiobutton(self.frame_context, variable=var_absence, value=1, bg=color_2).place(x=185, y=155 + 35 * i)
             tk.Radiobutton(self.frame_context, variable=var_absence, value=2, bg=color_2).place(x=285, y=155 + 35 * i)
             tk.Radiobutton(self.frame_context, variable=var_absence, value=3, bg=color_2).place(x=385, y=155 + 35 * i)
 
-            if len(mission) != len(member_list):
-                var_mission = tk.IntVar()
-                mission.append(var_mission)
-            else:
-                var_mission = mission[i]
+            var_mission = tk.IntVar()
+            mission_value.append(var_mission)
+            if len(mission) > i:
+                var_mission.set(mission[i])
+
             tk.Radiobutton(self.frame_context, variable=var_mission, value=1, bg=color_2).place(x=700, y=155 + 35 * i)
             tk.Radiobutton(self.frame_context, variable=var_mission, value=2, bg=color_2).place(x=770, y=155 + 35 * i)
             tk.Radiobutton(self.frame_context, variable=var_mission, value=3, bg=color_2).place(x=840, y=155 + 35 * i)
@@ -1626,18 +1674,20 @@ class Page7:
         sheet = wb_record.worksheet_by_title("出缺勤")
 
         for i in range(len(member_list)):
-            if absence[i].get() == 1:
-                sheet.update_value((i + 1, 2), "準時")
-            if absence[i].get() == 2:
-                sheet.update_value((i + 1, 2), "遲到")
-            if absence[i].get() == 3:
-                sheet.update_value((i + 1, 2), "未出席")
-            if mission[i].get() == 1:
-                sheet.update_value((i + 1, 3), "完成任務")
-            if mission[i].get() == 2:
-                sheet.update_value((i + 1, 3), "未完成任務")
-            if mission[i].get() == 3:
-                sheet.update_value((i + 1, 3), "無任務")
+            if absence_value[i].get() == 1:
+                df_sheet.iloc[i + 1, 1] = "準時"
+            if absence_value[i].get() == 2:
+                df_sheet.iloc[i + 1, 1] = "遲到"
+            if absence_value[i].get() == 3:
+                df_sheet.iloc[i + 1, 1] = "未出席"
+            if mission_value[i].get() == 1:
+                df_sheet.iloc[i + 1, 2] = "完成任務"
+            if mission_value[i].get() == 2:
+                df_sheet.iloc[i + 1, 2] = "未完成任務"
+            if mission_value[i].get() == 3:
+                df_sheet.iloc[i + 1, 2] = "無任務"
+
+        sheet.set_dataframe(df_sheet, start='A1', copy_index=False, copy_head=False)
 
         self.page7.destroy()
         Page6()
@@ -1667,10 +1717,7 @@ class Page8:
         self.lbl8_2 = tk.Label(self.page8, text="會議時間：", font=f2, bg=color_2)
 
         global meeting_record
-        try:
-            meeting_record = wb_record.worksheet_by_title('Meeting record')
-        except pygsheets.exceptions.WorksheetNotFound:
-            meeting_record = wb_record.add_worksheet('Meeting record')
+        meeting_record = wb_record.worksheet_by_title('Meeting record')
 
         if str(meeting_record.cell((1, 1)).value) != '':
             self.record.insert("1.0", str(meeting_record.cell((1, 1)).value))
@@ -1726,7 +1773,7 @@ class Page9:
         ws_2 = wb_record.worksheet_by_title('出缺勤')
         times = wb_record.worksheet_by_title('時間統計')
 
-        pd_ws_2 = ws_2.get_as_df(has_header=False, index_column=False, include_tailing_empty=False)
+        df_ws_2 = ws_2.get_as_df(has_header=True, index_column=False, include_tailing_empty=False)
         member_list = str(times.cell((18, 1)).value).split(',')
         ontime_num = 0
         late_num = 0
@@ -1736,15 +1783,15 @@ class Page9:
         absence_member = []
 
         for i in range(len(member_list)):
-            if pd_ws_2.iat[i, 1] == "準時":
+            if df_ws_2.iat[i, 1] == "準時":
                 ontime_num += 1
-                ontime_member.append(str(pd_ws_2.iat[i, 0]))
-            if pd_ws_2.iat[i, 1] == "遲到":
+                ontime_member.append(str(df_ws_2.iat[i, 0]))
+            if df_ws_2.iat[i, 1] == "遲到":
                 late_num += 1
-                late_member.append(str(pd_ws_2.iat[i, 0]))
-            if pd_ws_2.iat[i, 1] == "未出席":
+                late_member.append(str(df_ws_2.iat[i, 0]))
+            if df_ws_2.iat[i, 1] == "未出席":
                 absence_num += 1
-                absence_member.append(str(pd_ws_2.iat[i, 0]))
+                absence_member.append(str(df_ws_2.iat[i, 0]))
 
         done_num = 0
         undone_num = 0
@@ -1754,15 +1801,15 @@ class Page9:
         none_member = []
 
         for i in range(len(member_list)):
-            if pd_ws_2.iat[i, 2] == "完成任務":
+            if df_ws_2.iat[i, 2] == "完成任務":
                 done_num += 1
-                done_member.append(str(pd_ws_2.iat[i, 0]))
-            if pd_ws_2.iat[i, 2] == "未完成任務":
+                done_member.append(str(df_ws_2.iat[i, 0]))
+            if df_ws_2.iat[i, 2] == "未完成任務":
                 undone_num += 1
-                undone_member.append(str(pd_ws_2.iat[i, 0]))
-            if pd_ws_2.iat[i, 2] == "無任務":
+                undone_member.append(str(df_ws_2.iat[i, 0]))
+            if df_ws_2.iat[i, 2] == "無任務":
                 none_num += 1
-                none_member.append(str(pd_ws_2.iat[i, 0]))
+                none_member.append(str(df_ws_2.iat[i, 0]))
 
         self.lbl_title9 = tk.Label(self.frame_context9, text=' 會議已結束', height=1, width=15, font=f1, fg='white',
                                    bg=color_1, anchor='w').place(x=0, y=50)
