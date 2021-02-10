@@ -4,6 +4,7 @@ import tkinter.font as tkfont
 import tkinter.messagebox as tkmessage
 import pygsheets
 import pandas as pd
+import seaborn as sns
 import calendar
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -33,6 +34,7 @@ class Page0:
 
         f1 = tkfont.Font(size=45, family="源泉圓體 B")
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
+
         self.lblCaption = tk.Label(self.page0, text='開 會 小 助 手', bg=self._from_rgb((68, 84, 106)), fg='white',
                                    font=f1, width=30, height=2, anchor='center')
         self.btnStart = tk.Button(self.page0, text='開始使用', bg=self._from_rgb((255, 217, 102)), font=f2, width=10,
@@ -59,10 +61,12 @@ class Page1:
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=15, family="源泉圓體 M")
 
         color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
         color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
         color_3 = self._from_rgb((255, 217, 102))  # 淡橘
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
 
         # 加scrollbar
         self.canvas1 = tk.Canvas(self.page1, width=1000, height=700, bg=color_2)
@@ -72,7 +76,7 @@ class Page1:
         self.canvas1.configure(yscrollcommand=self.slb1.set)
         self.slb1.configure(command=self.canvas1.yview)
         self.frame_context1 = tk.Frame(self.canvas1, width=1000, height=10000, bg=color_2)
-        self.canvas1.create_window((0, 0), window=self.frame_context1, anchor='nw')
+        self.canvas1.create_window((-2, -2), window=self.frame_context1, anchor='nw')
 
         self.canvas_height_p1 = 200
 
@@ -82,10 +86,20 @@ class Page1:
                                        bg=color_3, fg='black', command=self.click_btnCreate_New)
         self.btnCreate_folder = tk.Button(self.frame_context1, text="創建會議群組", height=1, width=12, font=f2,
                                           bg=color_3, fg='black', command=self.click_btnCreate_folder)
+        self.lblSearch = tk.Label(self.frame_context1, text="關鍵字：", font=f3, bg=color_2)
+        self.btnSearch = tk.Button(self.frame_context1, text='搜尋', command=self.click_btnSearch, height=1, width=3,
+                                   font=f3, bg=color_4)
+
+        global keywords
+        keywords = tk.StringVar()
+        self.inputKey = tk.Entry(self.frame_context1, textvariable=keywords, width=22, font=f3)
 
         self.lblTitle_A.place(x=0, y=50)
         self.btnCreate_New.place(x=780, y=50)
-        self.btnCreate_folder.place(relx=0.55, rely=0.005, anchor='nw')
+        self.btnCreate_folder.place(x=550, y=50)
+        self.lblSearch.place(x=550, y=126)
+        self.btnSearch.place(x=904, y=120)
+        self.inputKey.place(x=640, y=126)
 
         global wb_names, sheet_names, df_sheet_names
         wb_names = gc.open('會議名稱')
@@ -105,17 +119,21 @@ class Page1:
             finish_meeting = []
             meeting_or_folder = []
 
-        yaxis = 150
+        yaxis = 180
         k = 0
-        l = 0
+        m = 0
+        self.pixel = tk.PhotoImage(height=2, width=10)
 
         for i in range(len(meeting_names)):
             if meeting_or_folder[i] == 'folder':
-                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10,
-                                           relief='solid',
-                                           font=f1, bg='light grey', command=lambda b=i: self.click_btn_folder(b))
-                self.btn_names.place(x=44 + 325 * (k % 3), y=150 + 150 * (k // 3))
-                yaxis = 150 + 150 * (k // 3 + 1)
+                length = len(meeting_names[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='light grey',
+                                           command=lambda b=i: self.click_btn_folder(b))
+                self.btn_names.place(x=44 + 325 * (k % 3), y=180 + 150 * (k // 3))
+                yaxis = 180 + 150 * (k // 3 + 1)
 
                 if k % 3 == 0:
                     self.canvas_height_p1 += 150
@@ -127,23 +145,113 @@ class Page1:
 
         for i in range(len(meeting_names)):
             if meeting_or_folder[i] == 'meeting':
-                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], height=2, width=10,
-                                           relief='solid', font=f1, bg='white',
-                                           command=lambda a=i: self.click_btn_meetings(a))
-                self.btn_names.place(x=44 + 325 * (l % 3), y=yaxis + 150 * (l // 3))
+                length = len(meeting_names[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='white', command=lambda a=i: self.click_btn_meetings(a))
+                self.btn_names.place(x=44 + 325 * (m % 3), y=yaxis + 150 * (m // 3))
 
-                if l % 3 == 0:
+                if m % 3 == 0:
                     self.canvas_height_p1 += 150
 
                 if finish_meeting[i] == 'finished':
                     self.btn_names.config(fg='light grey')
 
-                l += 1
+                m += 1
 
         if self.canvas_height_p1 > 700:
             self.canvas1.configure(scrollregion=(0, 0, 1000, self.canvas_height_p1))
         else:
             self.canvas1.configure(scrollregion=(0, 0, 1000, 700))
+
+    def click_btnSearch(self):
+        f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=15, family="源泉圓體 M")
+
+        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
+
+        self.canvasS = tk.Canvas(self.page1, width=1000, height=700, bg=color_2)
+        self.canvasS.place(relx=0, rely=0.15)
+        self.slbS = tk.Scrollbar(self.page1, orient='vertical')
+        self.slbS.place(relx=0.98, width=20, height=700)
+        self.canvasS.configure(yscrollcommand=self.slbS.set)
+        self.slbS.configure(command=self.canvasS.yview)
+        self.frame_contextS = tk.Frame(self.canvasS, width=1000, height=10000, bg=color_2)
+        self.canvasS.create_window((-2, -2), window=self.frame_contextS, anchor='nw')
+
+        self.canvas_height_pS = 250
+
+        global keywords, meeting_names, finish_meeting, meeting_or_folder
+        fit_meetings = []
+        fit_meetings_location = []
+
+        for i in range(len(meeting_names)):
+            if keywords.get() in meeting_names[i]:
+                fit_meetings.append(meeting_names[i])
+                fit_meetings_location.append(i)
+
+        yaxis = 80
+        k = 0
+        m = 0
+        self.pixel = tk.PhotoImage(height=2, width=10)
+
+        for i in range(len(fit_meetings)):
+            if meeting_or_folder[fit_meetings_location[i]] == 'folder':
+                length = len(fit_meetings[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_contextS, text=fit_meetings[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='light grey',
+                                           command=lambda b=fit_meetings_location[i]: self.click_btn_folder(b))
+                self.btn_names.place(x=44 + 325 * (k % 3), y=80 + 150 * (k // 3))
+                yaxis = 80 + 150 * (k // 3 + 1)
+
+                if k % 3 == 0:
+                    self.canvas_height_pS += 150
+
+                if finish_meeting[fit_meetings_location[i]] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                k += 1
+
+        for i in range(len(fit_meetings)):
+            if meeting_or_folder[fit_meetings_location[i]] == 'meeting':
+                length = len(fit_meetings[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_contextS, text=fit_meetings[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='white',
+                                           command=lambda a=fit_meetings_location[i]: self.click_btn_meetings(a))
+                self.btn_names.place(x=44 + 325 * (m % 3), y=yaxis + 150 * (m // 3))
+
+                if m % 3 == 0:
+                    self.canvas_height_pS += 150
+
+                if finish_meeting[fit_meetings_location[i]] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                m += 1
+
+        counts = len(fit_meetings)
+
+        self.lblText = tk.Label(self.frame_contextS, text="符合\"" + keywords.get() + "\"的會議共有" + str(counts) + "個：",
+                                font=f2, bg=color_2)
+        self.btn_back = tk.Button(self.frame_contextS, text="返回", height=1, font=f3, command=self.click_btn_back,
+                                  bg=color_4)
+
+        self.lblText.place(x=50, y=20)
+        self.btn_back.place(x=890, y=25)
+
+        if self.canvas_height_pS > 700:
+            self.canvasS.configure(scrollregion=(0, 0, 1000, self.canvas_height_pS))
+        else:
+            self.canvasS.configure(scrollregion=(0, 0, 1000, 700))
+
+    def click_btn_back(self):
+        self.page1.destroy()
+        Page1()
 
     def click_btnCreate_New(self):
         self.create_window()
@@ -386,11 +494,10 @@ class Page1:
                     self.window.after(20, lambda: s._pressed(item=item, column=column, widget=widget))
                     return
                 text = '%02d' % text
-                s._selection = (text, item, column)
-                s._show_select(text, bbox)
                 if confirm:
                     pass
                 else:
+                    s._selection = (text, item, column)
                     year = s._date.year  # 使用者選取日期中的年份
                     month = s._date.month  # 使用者選取日期中的月份
                     choose_date = s._selection[0]  # 使用者選取日期中的"日"
@@ -405,10 +512,12 @@ class Page1:
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
+                                s._show_select(text, bbox)
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                                 self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
                                                             ("%02d" % int(s._selection[0]))))
                         else:
+                            s._show_select(text, bbox)
                             date_list.append("1")
                     elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
                         if len(date_list) != 0:
@@ -417,10 +526,12 @@ class Page1:
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
+                                s._show_select(text, bbox)
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                                 self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
                                                             ("%02d" % int(s._selection[0]))))
                         else:
+                            s._show_select(text, bbox)
                             date_list.append("1")
                     elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(
                             str(choose_date)) >= int(str(today_day)):
@@ -430,10 +541,12 @@ class Page1:
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
+                                s._show_select(text, bbox)
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                                 self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
                                                             ("%02d" % int(s._selection[0]))))
                         else:
+                            s._show_select(text, bbox)
                             date_list.append("1")
                     else:  # 若選取的日期為今天之前的日期，跳出錯誤訊息
                         self.window.lower(belowThis=self.page1)
@@ -587,7 +700,7 @@ class Page1:
                 Page1()
 
     def click_btn_meetings(self, a):
-        global name, location, sheet_time, df_sheet_time, dates
+        global wb_record, name, location, sheet_time, df_sheet_time, dates
         name = meeting_names[a]
         finish = finish_meeting[a]
         location = a
@@ -621,6 +734,7 @@ class Page2:
         color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
         color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
         color_3 = self._from_rgb((255, 217, 102))  # 淡橘
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
 
         global meeting_names, folder_location
         self.root = master
@@ -640,7 +754,7 @@ class Page2:
         self.canvas1.configure(yscrollcommand=self.slb1.set)
         self.slb1.configure(command=self.canvas1.yview)
         self.frame_context1 = tk.Frame(self.canvas1, width=1000, height=10000, bg=color_2)
-        self.canvas1.create_window((0, 0), window=self.frame_context1, anchor='nw')
+        self.canvas1.create_window((-2, -2), window=self.frame_context1, anchor='nw')
 
         self.canvas_height_p1 = 200
 
@@ -649,9 +763,20 @@ class Page2:
         self.btnCreate_New = tk.Button(self.frame_context1, text="創建新會議", height=1, width=10, font=f2,
                                        bg=color_3, fg='black', command=self.click_btnCreate_New)
         self.btn_back = tk.Button(self.page2, text="返回", height=1, font=f3, command=self.click_btn_back, bg=color_3)
+        self.lblSearch = tk.Label(self.frame_context1, text="關鍵字：", font=f3, bg=color_2)
+        self.btnSearch = tk.Button(self.frame_context1, text='搜尋', command=self.click_btnSearch, height=1, width=3,
+                                   font=f3, bg=color_4)
+
+        global keywords
+        keywords = tk.StringVar()
+        self.inputKey = tk.Entry(self.frame_context1, textvariable=keywords, width=22, font=f3)
+
         self.lblTitle_A.place(relx=0, rely=0.005, anchor='nw')
         self.btnCreate_New.place(relx=0.78, rely=0.005, anchor='nw')
         self.btn_back.place(x=700, y=65)
+        self.lblSearch.place(x=550, y=126)
+        self.btnSearch.place(x=904, y=120)
+        self.inputKey.place(x=640, y=126)
 
         global wb_names, sheet_names, df_sheet_names, folder_meeting_names, folder_finish_meeting
         sheet_names = wb_names.worksheet_by_title(str(meeting_names[folder_location]))
@@ -667,11 +792,15 @@ class Page2:
             folder_meeting_names = []
             folder_finish_meeting = []
 
+        self.pixel = tk.PhotoImage(height=2, width=10)
         for i in range(len(folder_meeting_names)):
-            self.btn_names = tk.Button(self.frame_context1, text=folder_meeting_names[i], height=2, width=10,
-                                       relief='solid', font=f1, bg='white',
+            length = len(folder_meeting_names[i])
+            font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+            self.btn_names = tk.Button(self.frame_context1, text=folder_meeting_names[i], image=self.pixel,
+                                       relief='solid', font=font, height=120, width=252, compound="center",
+                                       wraplength=200, justify="left", bg='white',
                                        command=lambda a=i: self.click_btn_meetings(a))
-            self.btn_names.place(x=44 + 325 * (i % 3), y=150 + 150 * (i // 3))
+            self.btn_names.place(x=44 + 325 * (i % 3), y=180 + 150 * (i // 3))
 
             if i % 3 == 0:
                 self.canvas_height_p1 += 150
@@ -683,6 +812,69 @@ class Page2:
             self.canvas1.configure(scrollregion=(0, 0, 1000, self.canvas_height_p1))
         else:
             self.canvas1.configure(scrollregion=(0, 0, 1000, 700))
+
+    def click_btnSearch(self):
+        f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=15, family="源泉圓體 M")
+
+        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
+
+        self.canvasS = tk.Canvas(self.page2, width=1000, height=700, bg=color_2)
+        self.canvasS.place(relx=0, rely=0.15)
+        self.slbS = tk.Scrollbar(self.page2, orient='vertical')
+        self.slbS.place(relx=0.98, width=20, height=700)
+        self.canvasS.configure(yscrollcommand=self.slbS.set)
+        self.slbS.configure(command=self.canvasS.yview)
+        self.frame_contextS = tk.Frame(self.canvasS, width=1000, height=10000, bg=color_2)
+        self.canvasS.create_window((-2, -2), window=self.frame_contextS, anchor='nw')
+
+        self.canvas_height_pS = 250
+
+        global keywords, folder_meeting_names, folder_finish_meeting, meeting_or_folder
+        fit_meetings = []
+        fit_meetings_location = []
+
+        for i in range(len(folder_meeting_names)):
+            if keywords.get() in folder_meeting_names[i]:
+                fit_meetings.append(folder_meeting_names[i])
+                fit_meetings_location.append(i)
+
+        self.pixel = tk.PhotoImage(height=2, width=10)
+
+        for i in range(len(fit_meetings)):
+            length = len(fit_meetings[i])
+            font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+            self.btn_names = tk.Button(self.frame_contextS, text=fit_meetings[i], image=self.pixel, relief='solid',
+                                       font=font, height=120, width=252, compound="center", wraplength=200,
+                                       justify="left", bg='white',
+                                       command=lambda a=fit_meetings_location[i]: self.click_btn_meetings(a))
+            self.btn_names.place(x=44 + 325 * (i % 3), y=80 + 150 * (i // 3))
+
+            if i % 3 == 0:
+                self.canvas_height_pS += 150
+
+            if folder_finish_meeting[fit_meetings_location[i]] == 'finished':
+                self.btn_names.config(fg='light grey')
+
+        counts = len(fit_meetings)
+
+        self.lblText = tk.Label(self.frame_contextS, text="符合\"" + keywords.get() + "\"的會議共有" + str(counts) + "個：",
+                                font=f2, bg=color_2)
+        self.btn_back = tk.Button(self.frame_contextS, text="返回", height=1, font=f3, command=self.click_btn_back_1,
+                                  bg=color_4)
+
+        self.lblText.place(x=50, y=20)
+        self.btn_back.place(x=890, y=25)
+
+        if self.canvas_height_pS > 700:
+            self.canvasS.configure(scrollregion=(0, 0, 1000, self.canvas_height_pS))
+        else:
+            self.canvasS.configure(scrollregion=(0, 0, 1000, 700))
+
+    def click_btn_back_1(self):
+        self.page2.destroy()
+        Page2()
 
     def click_btn_back(self):
         self.page2.destroy()
@@ -882,11 +1074,10 @@ class Page2:
                     self.window.after(20, lambda: s._pressed(item=item, column=column, widget=widget))
                     return
                 text = '%02d' % text
-                s._selection = (text, item, column)
-                s._show_select(text, bbox)
                 if confirm:
                     pass
                 else:
+                    s._selection = (text, item, column)
                     year = s._date.year  # 使用者選取日期中的年份
                     month = s._date.month  # 使用者選取日期中的月份
                     choose_date = s._selection[0]  # 使用者選取日期中的"日"
@@ -901,10 +1092,12 @@ class Page2:
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
+                                s._show_select(text, bbox)
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                                 self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
                                                             ("%02d" % int(s._selection[0]))))
                         else:
+                            s._show_select(text, bbox)
                             date_list.append("1")
                     elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
                         if len(date_list) != 0:
@@ -913,10 +1106,12 @@ class Page2:
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
+                                s._show_select(text, bbox)
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                                 self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
                                                             ("%02d" % int(s._selection[0]))))
                         else:
+                            s._show_select(text, bbox)
                             date_list.append("1")
                     elif int(str(year)) == int(str(today_year)) and int(str(month)) == int(str(today_month)) and int(
                             str(choose_date)) >= int(str(today_day)):
@@ -926,10 +1121,12 @@ class Page2:
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
+                                s._show_select(text, bbox)
                                 date_list.append(str(year) + "/" + str(month) + "/" + ("%02d" % int(s._selection[0])))
                                 self.enydate.insert("end", (str(year) + "/" + str(month) + "/" +
                                                             ("%02d" % int(s._selection[0]))))
                         else:
+                            s._show_select(text, bbox)
                             date_list.append("1")
                     else:  # 若選取的日期為今天之前的日期，跳出錯誤訊息
                         self.window.lower(belowThis=self.page2)
@@ -1152,7 +1349,7 @@ class Page3:
         try:
             wb = gc.open(str(name) + " in " + str(meeting_names[folder_location]))
             Page2()
-        except (FileNotFoundError, NameError):
+        except (pygsheets.exceptions.SpreadsheetNotFound, NameError):
             Page1()
 
 
@@ -1399,6 +1596,16 @@ class Page5:
             color_list.append(self.color)
             self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)
 
+        # 顏色漸層
+        """hls_color_list = sns.color_palette("Reds", n_colors=how_many_people)
+        for color in hls_color_list:
+            color_list.append(self._from_rgb((int(250 * color[0]), int(250 * color[1]), int(250 * color[2]))))
+
+        for i in range(how_many_people):
+            self.lst_color.insert('end', i + 1)
+            self.color = color_list[i]
+            self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)"""
+
         self.canvas = tk.Canvas(self.page5, width=414, height=510, bg=color_2)
         self.canvas.place(x=498, y=80)
         self.slb = tk.Scrollbar(self.page5, orient='horizontal')
@@ -1589,7 +1796,7 @@ class Page7:
         self.canvas.configure(yscrollcommand=self.slb.set)
         self.slb.configure(command=self.canvas.yview)
         self.frame_context = tk.Frame(self.canvas, width=1000, height=1000000, bg=color_2)
-        self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
+        self.canvas.create_window((-2, -2), window=self.frame_context, anchor='nw')
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=12, family="源泉圓體 M")
@@ -1610,7 +1817,6 @@ class Page7:
         self.lab7_6 = tk.Label(self.frame_context, text="無任務", font=f2, bg=color_2).place(x=823, y=125)
 
         global sheet, df_sheet, member_list, absence_value, mission_value
-
         sheet = wb_record.worksheet_by_title("出缺勤")
         df_sheet = sheet.get_as_df(has_header=False, index_column=None, include_tailing_empty=False)
         member_list = str(sheet_time.cell((18, 1)).value).split(',')
@@ -1671,8 +1877,6 @@ class Page7:
             self.canvas.configure(scrollregion=(0, 0, 1000, 700))
 
     def click_btn7_1(self):
-        sheet = wb_record.worksheet_by_title("出缺勤")
-
         for i in range(len(member_list)):
             if absence_value[i].get() == 1:
                 df_sheet.iloc[i + 1, 1] = "準時"
@@ -1763,7 +1967,7 @@ class Page9:
         self.canvas9.configure(yscrollcommand=self.slb9.set, scrollregion=(0, 0, 1000, 1050))
         self.slb9.configure(command=self.canvas9.yview)
         self.frame_context9 = tk.Frame(self.canvas9, width=2000, height=10000, bg=color_2)
-        self.canvas9.create_window((0, 0), window=self.frame_context9, anchor='nw')
+        self.canvas9.create_window((-2, -2), window=self.frame_context9, anchor='nw')
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=12, family="源泉圓體 M")
