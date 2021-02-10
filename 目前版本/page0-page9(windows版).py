@@ -4,10 +4,10 @@ import tkinter.messagebox as tkmessage
 import openpyxl
 import calendar
 from tkinter import ttk
+import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-plt.rcParams['font.sans-serif'] = ['GenSenRounded TW']  # windows也要另外設定才能在圓餅圖顯示中文字，我看的網站是下面這個
-# https://daxpowerbi.com/%E5%A6%82%E4%BD%95%E5%9C%A8win-10%E8%A7%A3%E6%B1%BAmatplotlib%E4%B8%AD%E6%96%87%E9%A1%AF%E7%A4%BA%E7%9A%84%E5%95%8F%E9%A1%8C/
+plt.rcParams['font.sans-serif'] = ['GenSenRounded TW']
 
 colors = ['red4', 'firebrick4', 'firebrick3', 'red2', 'red', 'firebrick1', 'OrangeRed2', 'tomato2', 'tomato',
           'chocolate1', 'dark orange', 'orange', 'goldenrod1', 'gold', 'yellow', 'DarkOliveGreen1', 'OliveDrab1',
@@ -60,7 +60,7 @@ class Page1:
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
-        f3 = tkfont.Font(size=12, family="源泉圓體 M") 
+        f3 = tkfont.Font(size=15, family="源泉圓體 M")
 
         color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
         color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
@@ -75,7 +75,7 @@ class Page1:
         self.canvas1.configure(yscrollcommand=self.slb1.set)
         self.slb1.configure(command=self.canvas1.yview)
         self.frame_context1 = tk.Frame(self.canvas1, width=1000, height=10000, bg=color_2)
-        self.canvas1.create_window((0, 0), window=self.frame_context1, anchor='nw')
+        self.canvas1.create_window((-2, -2), window=self.frame_context1, anchor='nw')
 
         self.canvas_height_p1 = 200
 
@@ -85,23 +85,21 @@ class Page1:
                                        bg=color_3, fg='black', command=self.click_btnCreate_New)
         self.btnCreate_folder = tk.Button(self.frame_context1, text="創建會議群組", height=1, width=12, font=f2,
                                           bg=color_3, fg='black', command=self.click_btnCreate_folder)
-
-        self.lblTitle_A.place(relx=0, rely=0.005, anchor='nw')
-        self.btnCreate_New.place(relx=0.78, rely=0.005, anchor='nw')
-        self.btnCreate_folder.place(relx=0.55, rely=0.005, anchor='nw')
-        
-        # 搜尋功能
         self.lblSearch = tk.Label(self.frame_context1, text="關鍵字：", font=f3, bg=color_2)
-        self.btnSearch = tk.Button(self.frame_context1, text = '搜尋', command=self.click_btnSearch, height=1, width=3, font = f3, bg=color_4)
-        
+        self.btnSearch = tk.Button(self.frame_context1, text='搜尋', command=self.click_btnSearch, height=1, width=3,
+                                   font=f3, bg=color_4)
+
         global keywords
-        keywords=tk.StringVar()
-        self.inputKey = tk.Entry(self.frame_context1, textvariable = keywords, width=10, font=f3)
-        
-        self.lblSearch.place(relx=0.7, rely=0.0012, anchor='nw')
-        self.btnSearch.place(relx=0.9, rely=0.001, anchor='nw')
-        self.inputKey.place(relx=0.78, rely=0.0012, anchor='nw')
-        
+        keywords = tk.StringVar()
+        self.inputKey = tk.Entry(self.frame_context1, textvariable=keywords, width=22, font=f3)
+
+        self.lblTitle_A.place(x=0, y=50)
+        self.btnCreate_New.place(x=780, y=50)
+        self.btnCreate_folder.place(x=550, y=50)
+        self.lblSearch.place(x=550, y=126)
+        self.btnSearch.place(x=904, y=120)
+        self.inputKey.place(x=640, y=126)
+
         global names, sheet_names
         names = openpyxl.load_workbook('會議名稱.xlsx')
         sheet_names = names['會議']
@@ -121,20 +119,20 @@ class Page1:
         except IndexError:
             pass
 
-        yaxis = 150
+        yaxis = 180
         k = 0
-        l = 0
-        
+        m = 0
         self.pixel = tk.PhotoImage(height=2, width=10)
+
         for i in range(len(meeting_names)):
-            length = len(meeting_names[i])
-            font = tkfont.Font(size=30-length, family="源泉圓體 B")
             if meeting_or_folder[i] == 'folder':
-                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image = self.pixel, height=120, width=252, relief='solid',
-                                           font=font, bg='light grey', compound='center', wraplength=200, justify="left",
-                                           command=lambda b=i: self.click_btn_folder(b))
-                self.btn_names.place(x=44 + 325 * (k % 3), y=150 + 150 * (k // 3))
-                yaxis = 150 + 150 * (k // 3 + 1)
+                length = len(meeting_names[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='light grey', command=lambda b=i: self.click_btn_folder(b))
+                self.btn_names.place(x=44 + 325 * (k % 3), y=180 + 150 * (k // 3))
+                yaxis = 180 + 150 * (k // 3 + 1)
 
                 if k % 3 == 0:
                     self.canvas_height_p1 += 150
@@ -145,36 +143,115 @@ class Page1:
                 k += 1
 
         for i in range(len(meeting_names)):
-            length = len(meeting_names[i])
-            font = tkfont.Font(size=30-length, family="源泉圓體 B")
             if meeting_or_folder[i] == 'meeting':
-                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image = self.pixel, height=120, width=252,
-                                           relief='solid', font=font, bg='white', compound = "center", wraplength=200, justify="left",
-                                           command=lambda a=i: self.click_btn_meetings(a))
-                self.btn_names.place(x=44 + 325 * (l % 3), y=yaxis + 150 * (l // 3))
+                length = len(meeting_names[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_context1, text=meeting_names[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='white', command=lambda a=i: self.click_btn_meetings(a))
+                self.btn_names.place(x=44 + 325 * (m % 3), y=yaxis + 150 * (m // 3))
 
-                if l % 3 == 0:
+                if m % 3 == 0:
                     self.canvas_height_p1 += 150
 
                 if finish_meeting[i] == 'finished':
                     self.btn_names.config(fg='light grey')
 
-                l += 1
+                m += 1
 
         if self.canvas_height_p1 > 700:
             self.canvas1.configure(scrollregion=(0, 0, 1000, self.canvas_height_p1))
         else:
             self.canvas1.configure(scrollregion=(0, 0, 1000, 700))
-    
-    # 搜尋功能函數
+
     def click_btnSearch(self):
-        if keywords.get() == "":
-            self.page1.lower(belowThis=None)
-            tkmessage.showerror(title="輸入未完整", message="您尚未輸入關鍵字")
+        f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=15, family="源泉圓體 M")
+
+        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
+
+        self.canvasS = tk.Canvas(self.page1, width=1000, height=700, bg=color_2)
+        self.canvasS.place(relx=0, rely=0.15)
+        self.slbS = tk.Scrollbar(self.page1, orient='vertical')
+        self.slbS.place(relx=0.98, width=20, height=700)
+        self.canvasS.configure(yscrollcommand=self.slbS.set)
+        self.slbS.configure(command=self.canvasS.yview)
+        self.frame_contextS = tk.Frame(self.canvasS, width=1000, height=10000, bg=color_2)
+        self.canvasS.create_window((-2, -2), window=self.frame_contextS, anchor='nw')
+
+        self.canvas_height_pS = 250
+
+        global keywords, meeting_names, finish_meeting, meeting_or_folder
+        fit_meetings = []
+        fit_meetings_location = []
+
+        for i in range(len(meeting_names)):
+            if keywords.get() in meeting_names[i]:
+                fit_meetings.append(meeting_names[i])
+                fit_meetings_location.append(i)
+
+        yaxis = 80
+        k = 0
+        m = 0
+        self.pixel = tk.PhotoImage(height=2, width=10)
+
+        for i in range(len(fit_meetings)):
+            if meeting_or_folder[fit_meetings_location[i]] == 'folder':
+                length = len(fit_meetings[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_contextS, text=fit_meetings[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='light grey',
+                                           command=lambda b=fit_meetings_location[i]: self.click_btn_folder(b))
+                self.btn_names.place(x=44 + 325 * (k % 3), y=80 + 150 * (k // 3))
+                yaxis = 80 + 150 * (k // 3 + 1)
+
+                if k % 3 == 0:
+                    self.canvas_height_pS += 150
+
+                if finish_meeting[fit_meetings_location[i]] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                k += 1
+
+        for i in range(len(fit_meetings)):
+            if meeting_or_folder[fit_meetings_location[i]] == 'meeting':
+                length = len(fit_meetings[i])
+                font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+                self.btn_names = tk.Button(self.frame_contextS, text=fit_meetings[i], image=self.pixel, relief='solid',
+                                           font=font, height=120, width=252, compound="center", wraplength=200,
+                                           justify="left", bg='white',
+                                           command=lambda a=fit_meetings_location[i]: self.click_btn_meetings(a))
+                self.btn_names.place(x=44 + 325 * (m % 3), y=yaxis + 150 * (m // 3))
+
+                if m % 3 == 0:
+                    self.canvas_height_pS += 150
+
+                if finish_meeting[fit_meetings_location[i]] == 'finished':
+                    self.btn_names.config(fg='light grey')
+
+                m += 1
+
+        counts = len(fit_meetings)
+
+        self.lblText = tk.Label(self.frame_contextS, text="符合\"" + keywords.get() + "\"的會議共有" + str(counts) + "個：",
+                                font=f2, bg=color_2)
+        self.btn_back = tk.Button(self.frame_contextS, text="返回", height=1, font=f3, command=self.click_btn_back,
+                                  bg=color_4)
+
+        self.lblText.place(x=50, y=20)
+        self.btn_back.place(x=890, y=25)
+
+        if self.canvas_height_pS > 700:
+            self.canvasS.configure(scrollregion=(0, 0, 1000, self.canvas_height_pS))
         else:
-            self.page1.destroy()
-            PageSearch()
-        
+            self.canvasS.configure(scrollregion=(0, 0, 1000, 700))
+
+    def click_btn_back(self):
+        self.page1.destroy()
+        Page1()
+
     def click_btnCreate_New(self):
         self.create_window()
 
@@ -641,107 +718,6 @@ class Page1:
         self.page1.destroy()
         Page2()
 
-class PageSearch:
-    def _from_rgb(self, rgb):
-        return "#%02x%02x%02x" % rgb
-
-    def __init__(self, master=None):
-        self.root = master
-        self.pageS = tk.Frame(self.root, width=1000, height=700, bg=self._from_rgb((208, 224, 227)))
-        self.pageS.master.title("會議")
-        self.pageS.grid()
-
-        f1 = tkfont.Font(size=30, family="源泉圓體 B")
-        f2 = tkfont.Font(size=20, family="源泉圓體 M")
-        f3 = tkfont.Font(size=15, family="源泉圓體 M") 
-
-        color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
-        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
-        color_3 = self._from_rgb((255, 217, 102))  # 淡橘
-        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
-        
-        global keywords
-        self.lblSearch = tk.Label(self.pageS, text=' ' + "關鍵字：" + keywords.get(), height=1, width=15, font=f1, bg=color_1, fg='white',
-                                  anchor='w')
-        self.lblSearch.place(x=0, y=50)                    
-        self.pixel = tk.PhotoImage(height=2, width=10)
-        fit_meetings = []
-        
-        global meeting_names, finish_meeting, meeting_or_folder
-        
-        yaxis = 180
-        k = 0
-        l = 0
-        
-        self.pixel = tk.PhotoImage(height=2, width=10)
-        for names in meeting_names:
-            if keywords.get() in names:
-                fit_meetings.append(names)
-        for i in range(len(fit_meetings)):
-            length = len(fit_meetings[i])
-            font = tkfont.Font(size=30-length, family="源泉圓體 B")
-            if meeting_or_folder[i] == 'folder':
-                self.btn_names = tk.Button(self.pageS, text=fit_meetings[i], image = self.pixel, height=120, width=252, relief='solid',
-                                           font=font, bg='light grey', compound='center', wraplength=200, justify="left",
-                                           command=lambda b=i: self.click_btn_folder(b))
-                self.btn_names.place(x=44 + 325 * (k % 3), y=180 + 150 * (k // 3))
-                yaxis = 180 + 150 * (k // 3 + 1)
-
-                if finish_meeting[i] == 'finished':
-                    self.btn_names.config(fg='light grey')
-
-                k += 1
-
-        for i in range(len(fit_meetings)):
-            length = len(fit_meetings[i])
-            font = tkfont.Font(size=30-length, family="源泉圓體 B")
-            if meeting_or_folder[i] == 'meeting':
-                self.btn_names = tk.Button(self.pageS, text=fit_meetings[i], image = self.pixel, height=120, width=252,
-                                           relief='solid', font=font, bg='white', compound = "center", wraplength=200, justify="left",
-                                           command=lambda a=i: self.click_btn_meetings(a))
-                self.btn_names.place(x=44 + 325 * (l % 3), y=yaxis + 150 * (l // 3))
-
-                if finish_meeting[i] == 'finished':
-                    self.btn_names.config(fg='light grey')
-
-                l += 1
-                
-        counts = len(fit_meetings)
-        if counts != 0:
-            self.lblText = tk.Label(self.pageS, text = "符合\""+keywords.get()+"\"的結果共有"+str(counts)+"個：", font=f2, bg=color_2)
-            self.lblText.place(x=50, y = 120)
-        else:
-            self.lblText = tk.Label(self.pageS, text = "無相關搜尋結果", font=f2, bg=color_2)
-            self.lblText.place(x=50, y = 120)
-
-        self.btn_back = tk.Button(self.pageS, text="返回", height=1, font=f3, command=self.click_btn_back, bg=color_3)
-        self.btn_back.place(relx=0.5, y=600, anchor='center')
-        
-    def click_btn_meetings(self, a):
-        global name, wb_record, sheet_time, finish_meeting, location
-        name = meeting_names[a]
-        finish = finish_meeting[a]
-        wb_record = openpyxl.load_workbook('%s.xlsx' % name)
-        sheet_time = wb_record[name]
-        location = a
-
-        if finish == 'finished':
-            self.pageS.destroy()
-            Page9()
-        else:
-            self.pageS.destroy()
-            Page3()
-            
-    def click_btn_folder(self, b):
-        global folder_location
-        folder_location = b
-
-        self.pageS.destroy()
-        Page2()
-        
-    def click_btn_back(self):
-        self.pageS.destroy()
-        Page1()
 
 class Page2:
     def _from_rgb(self, rgb):
@@ -751,10 +727,12 @@ class Page2:
         color_1 = self._from_rgb((68, 84, 106))  # 藍黑色
         color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
         color_3 = self._from_rgb((255, 217, 102))  # 淡橘
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
 
+        global meeting_names, folder_location
         self.root = master
         self.page2 = tk.Frame(self.root, width=1000, height=700, bg=color_2)
-        self.page2.master.title("會議")
+        self.page2.master.title(str(meeting_names[folder_location]))
         self.page2.grid()
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
@@ -769,19 +747,29 @@ class Page2:
         self.canvas1.configure(yscrollcommand=self.slb1.set)
         self.slb1.configure(command=self.canvas1.yview)
         self.frame_context1 = tk.Frame(self.canvas1, width=1000, height=10000, bg=color_2)
-        self.canvas1.create_window((0, 0), window=self.frame_context1, anchor='nw')
+        self.canvas1.create_window((-2, -2), window=self.frame_context1, anchor='nw')
 
         self.canvas_height_p1 = 200
 
-        global meeting_names, folder_location
-        self.lblTitle_A = tk.Label(self.frame_context1, text=" " + meeting_names[folder_location], height=1, width=15,
+        self.lblTitle_A = tk.Label(self.frame_context1, text=" " + str(meeting_names[folder_location]), height=1, width=15,
                                    font=f1, bg=color_1, fg='white', anchor='w')
         self.btnCreate_New = tk.Button(self.frame_context1, text="創建新會議", height=1, width=10, font=f2,
                                        bg=color_3, fg='black', command=self.click_btnCreate_New)
         self.btn_back = tk.Button(self.page2, text="返回", height=1, font=f3, command=self.click_btn_back, bg=color_3)
+        self.lblSearch = tk.Label(self.frame_context1, text="關鍵字：", font=f3, bg=color_2)
+        self.btnSearch = tk.Button(self.frame_context1, text='搜尋', command=self.click_btnSearch, height=1, width=3,
+                                   font=f3, bg=color_4)
+
+        global keywords
+        keywords = tk.StringVar()
+        self.inputKey = tk.Entry(self.frame_context1, textvariable=keywords, width=22, font=f3)
+
         self.lblTitle_A.place(relx=0, rely=0.005, anchor='nw')
         self.btnCreate_New.place(relx=0.78, rely=0.005, anchor='nw')
         self.btn_back.place(x=700, y=65)
+        self.lblSearch.place(x=550, y=126)
+        self.btnSearch.place(x=904, y=120)
+        self.inputKey.place(x=640, y=126)
 
         global names, sheet_names, folder_meeting_names, folder_finish_meeting
         sheet_names = names[meeting_names[folder_location]]
@@ -796,11 +784,15 @@ class Page2:
         except IndexError:
             pass
 
+        self.pixel = tk.PhotoImage(height=2, width=10)
         for i in range(len(folder_meeting_names)):
-            self.btn_names = tk.Button(self.frame_context1, text=folder_meeting_names[i], height=2, width=10,
-                                       relief='solid', font=f1, bg='white',
+            length = len(folder_meeting_names[i])
+            font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+            self.btn_names = tk.Button(self.frame_context1, text=folder_meeting_names[i], image=self.pixel,
+                                       relief='solid', font=font, height=120, width=252, compound="center",
+                                       wraplength=200, justify="left", bg='white',
                                        command=lambda a=i: self.click_btn_meetings(a))
-            self.btn_names.place(x=44 + 325 * (i % 3), y=150 + 150 * (i // 3))
+            self.btn_names.place(x=44 + 325 * (i % 3), y=180 + 150 * (i // 3))
 
             if i % 3 == 0:
                 self.canvas_height_p1 += 150
@@ -816,6 +808,69 @@ class Page2:
     def click_btn_back(self):
         self.page2.destroy()
         Page1()
+
+    def click_btnSearch(self):
+        f2 = tkfont.Font(size=20, family="源泉圓體 M")
+        f3 = tkfont.Font(size=15, family="源泉圓體 M")
+
+        color_2 = self._from_rgb((208, 224, 227))  # 湖水藍
+        color_4 = self._from_rgb((255, 230, 153))  # 淡黃
+
+        self.canvasS = tk.Canvas(self.page2, width=1000, height=700, bg=color_2)
+        self.canvasS.place(relx=0, rely=0.15)
+        self.slbS = tk.Scrollbar(self.page2, orient='vertical')
+        self.slbS.place(relx=0.98, width=20, height=700)
+        self.canvasS.configure(yscrollcommand=self.slbS.set)
+        self.slbS.configure(command=self.canvasS.yview)
+        self.frame_contextS = tk.Frame(self.canvasS, width=1000, height=10000, bg=color_2)
+        self.canvasS.create_window((0, -2), window=self.frame_contextS, anchor='nw')
+
+        self.canvas_height_pS = 250
+
+        global keywords, folder_meeting_names, folder_finish_meeting, meeting_or_folder
+        fit_meetings = []
+        fit_meetings_location = []
+
+        for i in range(len(folder_meeting_names)):
+            if keywords.get() in folder_meeting_names[i]:
+                fit_meetings.append(folder_meeting_names[i])
+                fit_meetings_location.append(i)
+
+        self.pixel = tk.PhotoImage(height=2, width=10)
+
+        for i in range(len(fit_meetings)):
+            length = len(fit_meetings[i])
+            font = tkfont.Font(size=34 - length, family="源泉圓體 B")
+            self.btn_names = tk.Button(self.frame_contextS, text=fit_meetings[i], image=self.pixel, relief='solid',
+                                       font=font, height=120, width=252, compound="center", wraplength=200,
+                                       justify="left", bg='white',
+                                       command=lambda a=fit_meetings_location[i]: self.click_btn_meetings(a))
+            self.btn_names.place(x=44 + 325 * (i % 3), y=80 + 150 * (i // 3))
+
+            if i % 3 == 0:
+                self.canvas_height_pS += 150
+
+            if folder_finish_meeting[fit_meetings_location[i]] == 'finished':
+                self.btn_names.config(fg='light grey')
+
+        counts = len(fit_meetings)
+
+        self.lblText = tk.Label(self.frame_contextS, text="符合\"" + keywords.get() + "\"的會議共有" + str(counts) + "個：",
+                                font=f2, bg=color_2)
+        self.btn_back = tk.Button(self.frame_contextS, text="返回", height=1, font=f3, command=self.click_btn_back_1,
+                                  bg=color_4)
+
+        self.lblText.place(x=50, y=20)
+        self.btn_back.place(x=890, y=25)
+
+        if self.canvas_height_pS > 700:
+            self.canvasS.configure(scrollregion=(0, 0, 1000, self.canvas_height_pS))
+        else:
+            self.canvasS.configure(scrollregion=(0, 0, 1000, 700))
+
+    def click_btn_back_1(self):
+        self.page2.destroy()
+        Page2()
 
     def click_btnCreate_New(self):
         self.create_window()
@@ -1025,7 +1080,7 @@ class Page2:
                     if int(str(year)) > int(str(today_year)):
                         if len(date_list) != 0:
                             if date in date_list:  # 若選擇日期出現在date_list，代表重複日期，必須跳出錯誤訊息
-                                self.window.lower(belowThis=self.page1)
+                                self.window.lower(belowThis=self.page2)
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
@@ -1039,7 +1094,7 @@ class Page2:
                     elif int(str(year)) == int(str(today_year)) and int(str(month)) > int(str(today_month)):
                         if len(date_list) != 0:
                             if date in date_list:
-                                self.window.lower(belowThis=self.page1)
+                                self.window.lower(belowThis=self.page2)
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
@@ -1054,7 +1109,7 @@ class Page2:
                             str(choose_date)) >= int(str(today_day)):
                         if len(date_list) != 0:
                             if date in date_list:
-                                self.window.lower(belowThis=self.page1)
+                                self.window.lower(belowThis=self.page2)
                                 tkmessage.showerror(title="日期重複", message="此日期已選擇")
                                 self.window.wm_attributes('-topmost', 1)
                             else:
@@ -1066,9 +1121,10 @@ class Page2:
                             s._show_select(text, bbox)
                             date_list.append("1")
                     else:  # 若選取的日期為今天之前的日期，跳出錯誤訊息
-                        self.window.lower(belowThis=self.page1)
+                        self.window.lower(belowThis=self.page2)
                         tkmessage.showerror(title="日期無效", message="請選擇有效日期")
                         self.window.wm_attributes('-topmost', 1)
+
             def _prev_month(s):  # 按下左箭頭後，月曆頁面需進行切換
                 s._canvas.place_forget()
                 s._selection = None
@@ -1527,6 +1583,16 @@ class Page5:
             color_list.append(self.color)
             self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)
 
+        # 顏色漸層
+        """hls_color_list = sns.color_palette("Reds", n_colors=how_many_people)
+        for color in hls_color_list:
+            color_list.append(self._from_rgb((int(250 * color[0]), int(250 * color[1]), int(250 * color[2]))))
+
+        for i in range(how_many_people):
+            self.lst_color.insert('end', i + 1)
+            self.color = color_list[i]
+            self.lst_color.itemconfig('end', bg=self.color, selectbackground=self.color)"""
+
         self.canvas = tk.Canvas(self.page5, width=414, height=510, bg=color_2)
         self.canvas.place(x=498, y=80)
         self.slb = tk.Scrollbar(self.page5, orient='horizontal')
@@ -1717,7 +1783,7 @@ class Page7:
         self.canvas.configure(yscrollcommand=self.slb.set)
         self.slb.configure(command=self.canvas.yview)
         self.frame_context = tk.Frame(self.canvas, width=1000, height=1000000, bg=color_2)
-        self.canvas.create_window((0, 0), window=self.frame_context, anchor='nw')
+        self.canvas.create_window((-2, -2), window=self.frame_context, anchor='nw')
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=12, family="源泉圓體 M")
@@ -1874,7 +1940,7 @@ class Page9:
         self.canvas9.configure(yscrollcommand=self.slb9.set, scrollregion=(0, 0, 1000, 1050))
         self.slb9.configure(command=self.canvas9.yview)
         self.frame_context9 = tk.Frame(self.canvas9, width=2000, height=10000, bg=color_2)
-        self.canvas9.create_window((0, 0), window=self.frame_context9, anchor='nw')
+        self.canvas9.create_window((-2, -2), window=self.frame_context9, anchor='nw')
 
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=12, family="源泉圓體 M")
