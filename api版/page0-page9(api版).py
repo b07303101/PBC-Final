@@ -1986,17 +1986,6 @@ class Page9:
         late_member = []
         absence_member = []
 
-        for i in range(len(member_list)):
-            if df_ws_2.iat[i, 1] == "準時":
-                ontime_num += 1
-                ontime_member.append(str(df_ws_2.iat[i, 0]))
-            if df_ws_2.iat[i, 1] == "遲到":
-                late_num += 1
-                late_member.append(str(df_ws_2.iat[i, 0]))
-            if df_ws_2.iat[i, 1] == "未出席":
-                absence_num += 1
-                absence_member.append(str(df_ws_2.iat[i, 0]))
-
         done_num = 0
         undone_num = 0
         none_num = 0
@@ -2004,16 +1993,28 @@ class Page9:
         undone_member = []
         none_member = []
 
-        for i in range(len(member_list)):
-            if df_ws_2.iat[i, 2] == "完成任務":
-                done_num += 1
-                done_member.append(str(df_ws_2.iat[i, 0]))
-            if df_ws_2.iat[i, 2] == "未完成任務":
-                undone_num += 1
-                undone_member.append(str(df_ws_2.iat[i, 0]))
-            if df_ws_2.iat[i, 2] == "無任務":
-                none_num += 1
-                none_member.append(str(df_ws_2.iat[i, 0]))
+        try:
+            for i in range(len(member_list)):
+                if df_ws_2.iat[i, 1] == "準時":
+                    ontime_num += 1
+                    ontime_member.append(str(df_ws_2.iat[i, 0]))
+                if df_ws_2.iat[i, 1] == "遲到":
+                    late_num += 1
+                    late_member.append(str(df_ws_2.iat[i, 0]))
+                if df_ws_2.iat[i, 1] == "未出席":
+                    absence_num += 1
+                    absence_member.append(str(df_ws_2.iat[i, 0]))
+                    if df_ws_2.iat[i, 2] == "完成任務":
+                        done_num += 1
+                        done_member.append(str(df_ws_2.iat[i, 0]))
+                    if df_ws_2.iat[i, 2] == "未完成任務":
+                        undone_num += 1
+                        undone_member.append(str(df_ws_2.iat[i, 0]))
+                    if df_ws_2.iat[i, 2] == "無任務":
+                        none_num += 1
+                        none_member.append(str(df_ws_2.iat[i, 0]))
+        except IndexError:
+            pass
 
         self.lbl_title9 = tk.Label(self.frame_context9, text=' 會議已結束', height=1, width=15, font=f1, fg='white',
                                    bg=color_1, anchor='w').place(x=0, y=50)
