@@ -1546,7 +1546,7 @@ class Page5:
         self.lst_unavailable.place(x=80, y=151)
 
         var_allmembers = tk.StringVar()
-        self.lst_allmembers = tk.Listbox(self.page5, listvariable=var_allmembers, font=f2, width=14, height=7,
+        self.lst_allmembers = tk.Listbox(self.page5, listvariable=var_allmembers, font=f2, width=14, height=7, selectmode='multiple',
                                          yscrollcommand=self.scroll_allmembers.set)
         self.lst_allmembers.place(x=80, y=425)
 
@@ -1561,6 +1561,12 @@ class Page5:
 
         self.btn_try.place(x=298, y=570)
         self.btn_reset.place(x=363, y=570)
+        
+        self.btn_trymembers = tk.Button(self.page5, text='try', font=f4, width=5, command=self.click_btn_trymembers)
+        self.btn_resetmembers = tk.Button(self.page5, text='reset', font=f4, width=5, command=self.click_btn_resetmembers)
+
+        self.btn_trymembers.place(x=97, y=570)
+        self.btn_resetmembers.place(x=158, y=570)
 
         self.lst_color = tk.Listbox(self.page5, width=14, height=7, font=f2, selectmode=tk.MULTIPLE,
                                     yscrollcommand=self.scroll_color.set)
@@ -1637,7 +1643,7 @@ class Page5:
                         self.btn.place(x=4 + 52 * i, y=3 + 30 * j)
                         people_list[i - 1].append(how_many_available)
                         btn_list[i - 1].append(self.btn)
-
+                        
         self.canvas.configure(scrollregion=(0, 0, self.canvas_width, 530))
 
         self.scroll_available.config(command=self.lst_available.yview)
@@ -1685,6 +1691,52 @@ class Page5:
                 else:
                     btn_list[i - 1][j - 1].config(bg='white')
                     people_list[i - 1].append(how_many_available)
+
+    def click_btn_trymembers(self):
+        member_choose = list()
+        member_choose_tuple = self.lst_allmembers.curselection()
+        
+        all_members = str(sheet_time.cell(row=18, column=1).value).split(',')
+        
+        for i in member_choose_tuple:
+            member_choose.append(all_members[i])
+        
+        for i in range(1, len(dates) + 1):
+            for j in range(1, 17):
+                member_total = str(sheet_time.cell(row=j+1, column=i+1).value).split(',')
+                for members in member_choose:
+                    if members in member_total:
+                        btn_list[i-1][j-1].config(bg = self._from_rgb((157, 195, 230)))
+                    else:
+                        btn_list[i-1][j-1].config(bg = 'white')
+                        break
+                   
+    def click_btn_resetmembers(self):
+        member_choose = list()
+        member_choose_tuple = self.lst_allmembers.curselection()
+        
+        all_members = str(sheet_time.cell(row=18, column=1).value).split(',')
+        
+        for i in member_choose_tuple:
+            member_choose.append(all_members[i])
+            
+        for j in member_choose_tuple:
+            self.lst_allmembers.delete(j)
+            self.lst_allmembers.insert(j, all_members[j])
+            self.lst_allmembers.itemconfig(j, bg='white')
+
+        for i in range(1, len(dates) + 1):
+            for j in range(1, 17):
+                how_many_available = len(str(sheet_time.cell(row=j + 1, column=i + 1).value).split(','))
+                if str(sheet_time.cell(row=j + 1, column=i + 1).value) == 'None':
+                    how_many_available = 0
+                if how_many_available != 0:
+                    btn_list[i - 1][j - 1].config(bg=str(color_list[how_many_available - 1]))
+                    people_list[i - 1].append(how_many_available)
+                else:
+                    btn_list[i - 1][j - 1].config(bg='white')
+                    people_list[i - 1].append(how_many_available)
+            
 
     def click_btn_yes(self):
         self.page5.destroy()
