@@ -1288,8 +1288,9 @@ class Page3:
         f1 = tkfont.Font(size=30, family="源泉圓體 B")
         f2 = tkfont.Font(size=20, family="源泉圓體 M")
         f3 = tkfont.Font(size=15, family="源泉圓體 M")
-
-        self.lab_title_3 = tk.Label(self.page3, text=' ' + name, height=1, width=15, font=f1, bg=color_1, fg='white',
+        
+        add = len(name)
+        self.lab_title_3 = tk.Label(self.page3, text=' ' + name, height=1, width=13+(add//2), font=f1, bg=color_1, fg='white',
                                     anchor='w')
         self.btn_createtime = tk.Button(self.page3, text="新增你的時間", height=1, width=18, font=f2, fg=color_1,
                                         relief='solid', command=self.click_btn_createtime)
